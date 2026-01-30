@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
     Select,
     SelectContent,
@@ -15,7 +13,6 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
-    AlertTriangle,
     Loader2,
     MapPin,
     Phone,
@@ -61,7 +58,7 @@ const statusColors: Record<string, string> = {
     cancelled: "bg-gray-500",
 };
 
-export default function AdminIssuesPage() {
+function AdminIssuesContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { data: session, isPending: sessionLoading } = authClient.useSession();
@@ -69,7 +66,7 @@ export default function AdminIssuesPage() {
     const [issues, setIssues] = useState<Issue[]>([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all");
-    const [severityFilter, setSeverityFilter] = useState(searchParams.get("severity") || "");
+    const [severityFilter, setSeverityFilter] = useState(searchParams.get("severity") || "all");
     const [updating, setUpdating] = useState<string | null>(null);
 
     useEffect(() => {
@@ -83,7 +80,7 @@ export default function AdminIssuesPage() {
         try {
             let url = "/api/admin/issues?";
             if (statusFilter && statusFilter !== "all") url += `status=${statusFilter}&`;
-            if (severityFilter) url += `severity=${severityFilter}&`;
+            if (severityFilter && severityFilter !== "all") url += `severity=${severityFilter}&`;
 
             const res = await fetch(url);
             if (res.ok) {
@@ -170,14 +167,14 @@ export default function AdminIssuesPage() {
                                     <SelectValue placeholder="Severity" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Severity</SelectItem>
+                                    <SelectItem value="all">All Severity</SelectItem>
                                     <SelectItem value="critical">Critical</SelectItem>
                                     <SelectItem value="high">High</SelectItem>
                                     <SelectItem value="medium">Medium</SelectItem>
                                     <SelectItem value="low">Low</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <Button variant="outline" onClick={() => { setStatusFilter("all"); setSeverityFilter(""); }}>
+                            <Button variant="outline" onClick={() => { setStatusFilter("all"); setSeverityFilter("all"); }}>
                                 Clear Filters
                             </Button>
                         </div>
@@ -294,5 +291,17 @@ export default function AdminIssuesPage() {
                 )}
             </main>
         </div>
+    );
+}
+
+export default function AdminIssuesPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+        }>
+            <AdminIssuesContent />
+        </Suspense>
     );
 }

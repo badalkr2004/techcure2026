@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/db/drizzle";
-import { issue, issueType, issueAssignment, volunteerProfile, user } from "@/db/schema";
-import { eq, desc, and, inArray } from "drizzle-orm";
+import { issue, issueType } from "@/db/schema";
+import { eq, desc, and } from "drizzle-orm";
 
 /**
  * GET /api/admin/issues

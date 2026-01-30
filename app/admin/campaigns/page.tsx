@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -20,7 +19,6 @@ import {
     ArrowLeft,
     CheckCircle,
     XCircle,
-    IndianRupee,
     Users,
     Clock,
 } from "lucide-react";
@@ -61,15 +59,15 @@ const categoryLabels: Record<string, string> = {
     community: "Community",
 };
 
-export default function AdminCampaignsPage() {
+function AdminCampaignsContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { data: session, isPending: sessionLoading } = authClient.useSession();
 
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
     const [loading, setLoading] = useState(true);
-    const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "");
-    const [categoryFilter, setCategoryFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all");
+    const [categoryFilter, setCategoryFilter] = useState("all");
     const [updating, setUpdating] = useState<string | null>(null);
 
     useEffect(() => {
@@ -82,8 +80,8 @@ export default function AdminCampaignsPage() {
         setLoading(true);
         try {
             let url = "/api/admin/campaigns?";
-            if (statusFilter) url += `status=${statusFilter}&`;
-            if (categoryFilter) url += `category=${categoryFilter}&`;
+            if (statusFilter && statusFilter !== "all") url += `status=${statusFilter}&`;
+            if (categoryFilter && categoryFilter !== "all") url += `category=${categoryFilter}&`;
 
             const res = await fetch(url);
             if (res.ok) {
@@ -186,7 +184,7 @@ export default function AdminCampaignsPage() {
                                     <SelectValue placeholder="Status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Status</SelectItem>
+                                    <SelectItem value="all">All Status</SelectItem>
                                     <SelectItem value="pending_approval">Pending Approval</SelectItem>
                                     <SelectItem value="active">Active</SelectItem>
                                     <SelectItem value="completed">Completed</SelectItem>
@@ -198,14 +196,14 @@ export default function AdminCampaignsPage() {
                                     <SelectValue placeholder="Category" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Categories</SelectItem>
+                                    <SelectItem value="all">All Categories</SelectItem>
                                     <SelectItem value="disaster_relief">Disaster Relief</SelectItem>
                                     <SelectItem value="medical">Medical Aid</SelectItem>
                                     <SelectItem value="education">Education</SelectItem>
                                     <SelectItem value="community">Community</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <Button variant="outline" onClick={() => { setStatusFilter(""); setCategoryFilter(""); }}>
+                            <Button variant="outline" onClick={() => { setStatusFilter("all"); setCategoryFilter("all"); }}>
                                 Clear Filters
                             </Button>
                         </div>
@@ -333,5 +331,17 @@ export default function AdminCampaignsPage() {
                 )}
             </main>
         </div>
+    );
+}
+
+export default function AdminCampaignsPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+        }>
+            <AdminCampaignsContent />
+        </Suspense>
     );
 }

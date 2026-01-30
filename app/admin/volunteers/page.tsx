@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -20,10 +19,8 @@ import {
     MapPin,
     Phone,
     Star,
-    Filter,
     ArrowLeft,
     CheckCircle,
-    Shield,
     Search,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
@@ -55,7 +52,7 @@ const rankColors: Record<string, string> = {
     leader: "bg-yellow-500",
 };
 
-export default function AdminVolunteersPage() {
+function AdminVolunteersContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { data: session, isPending: sessionLoading } = authClient.useSession();
@@ -63,7 +60,7 @@ export default function AdminVolunteersPage() {
     const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
-    const [verifiedFilter, setVerifiedFilter] = useState(searchParams.get("verified") || "");
+    const [verifiedFilter, setVerifiedFilter] = useState(searchParams.get("verified") || "all");
     const [updating, setUpdating] = useState<string | null>(null);
 
     useEffect(() => {
@@ -76,7 +73,7 @@ export default function AdminVolunteersPage() {
         setLoading(true);
         try {
             let url = "/api/admin/volunteers?";
-            if (verifiedFilter) url += `verified=${verifiedFilter}&`;
+            if (verifiedFilter && verifiedFilter !== "all") url += `verified=${verifiedFilter}&`;
             if (search) url += `search=${encodeURIComponent(search)}&`;
 
             const res = await fetch(url);
@@ -189,13 +186,13 @@ export default function AdminVolunteersPage() {
                                     <SelectValue placeholder="Verification Status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Volunteers</SelectItem>
+                                    <SelectItem value="all">All Volunteers</SelectItem>
                                     <SelectItem value="true">Verified</SelectItem>
                                     <SelectItem value="false">Pending Verification</SelectItem>
                                 </SelectContent>
                             </Select>
                             <Button onClick={handleSearch}>Search</Button>
-                            <Button variant="outline" onClick={() => { setSearch(""); setVerifiedFilter(""); }}>
+                            <Button variant="outline" onClick={() => { setSearch(""); setVerifiedFilter("all"); }}>
                                 Clear
                             </Button>
                         </div>
@@ -305,5 +302,17 @@ export default function AdminVolunteersPage() {
                 )}
             </main>
         </div>
+    );
+}
+
+export default function AdminVolunteersPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+        }>
+            <AdminVolunteersContent />
+        </Suspense>
     );
 }

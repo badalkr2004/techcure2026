@@ -1,0 +1,96 @@
+# Issue Detail View & Assignment Flow
+
+## Goal
+Implement a complete issue detail page where volunteers can view full issue information, accept/assign issues, update status, and resolve them.
+
+---
+
+## Proposed Changes
+
+### API Routes
+
+#### [NEW] [route.ts](file:///d:/nextJs(techcure)/techcure2026/app/api/issues/[id]/route.ts)
+- **GET /api/issues/[id]** - Get complete issue details with victim info, location, assignments
+- Returns all issue fields + issue type + current assignments
+
+#### [NEW] [route.ts](file:///d:/nextJs(techcure)/techcure2026/app/api/issues/[id]/accept/route.ts)
+- **POST /api/issues/[id]/accept** - Volunteer accepts an issue
+- Creates `issueAssignment` record with status `accepted`
+- Updates issue status to `assigned`
+
+#### [NEW] [route.ts](file:///d:/nextJs(techcure)/techcure2026/app/api/issues/[id]/status/route.ts)
+- **PATCH /api/issues/[id]/status** - Update assignment status
+- Statuses: `en_route` → `on_site` → `completed`
+- Updates timestamps accordingly
+
+#### [NEW] [route.ts](file:///d:/nextJs(techcure)/techcure2026/app/api/issues/[id]/resolve/route.ts)
+- **POST /api/issues/[id]/resolve** - Mark issue as resolved
+- Adds resolution notes
+- Updates volunteer stats (totalResolves)
+- Sets issue status to `resolved`
+
+---
+
+### UI Pages
+
+#### [NEW] [page.tsx](file:///d:/nextJs(techcure)/techcure2026/app/volunteer/alerts/[id]/page.tsx)
+**Issue Detail Page** - Full issue view with:
+
+| Section | Details |
+|---------|---------|
+| **Header** | Issue type badge, severity, status, time elapsed |
+| **Location** | Map preview, address, landmark, Google Maps link, directions button |
+| **Victim Info** | Name, phone (tap to call), age, gender |
+| **Description** | Full issue description |
+| **Actions** | Accept, En Route, On Site, Mark Resolved buttons |
+| **Status Timeline** | Created → Acknowledged → Assigned → In Progress → Resolved |
+
+---
+
+### UI Components
+
+#### [NEW] IssueStatusTimeline
+Shows workflow progress: `pending` → `acknowledged` → `assigned` → `in_progress` → `resolved`
+
+#### [NEW] LocationCard
+Map preview with address, "Open in Maps" and "Get Directions" buttons
+
+#### [NEW] VictimCard
+Victim details with click-to-call phone button
+
+#### [NEW] ActionButtons
+Context-aware buttons based on assignment status
+
+---
+
+## User Flow
+
+```mermaid
+graph TD
+    A[View Alerts List] --> B[Click View on Alert]
+    B --> C[Issue Detail Page]
+    C --> D{Not Assigned?}
+    D -->|Yes| E[Show Accept Button]
+    D -->|No assigned to me| F[Show Status Buttons]
+    E --> G[Accept Issue]
+    G --> H[Status: Assigned]
+    H --> I[Mark En Route]
+    I --> J[Mark On Site]
+    J --> K[Mark Resolved]
+    K --> L[Add Notes + Complete]
+    L --> M[Return to Dashboard]
+```
+
+---
+
+## Verification Plan
+
+### Browser Test Flow
+1. Login as volunteer → Go to dashboard
+2. Click "View" on a panic alert
+3. See full details with location, phone, description
+4. Click "Accept Issue" → Status changes to Assigned
+5. Click "En Route" → Status updates
+6. Click "On Site" → Status updates  
+7. Click "Resolve" → Enter resolution notes → Issue marked resolved
+8. Volunteer stats updated, return to dashboard

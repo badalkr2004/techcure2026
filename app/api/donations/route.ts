@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/db/drizzle";
 import { donation, campaign } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, desc } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 /**
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json();
 
-        const {
+        let {
             campaignId,
             amount, // in rupees
             donorName,
@@ -28,30 +28,54 @@ export async function POST(request: NextRequest) {
             message,
         } = body;
 
-        // Validate required fields
-        if (!campaignId || !amount || amount <= 0) {
+        // Validate amount
+        if (!amount || amount <= 0) {
             return NextResponse.json(
-                { error: "Campaign ID and valid amount are required" },
+                { error: "Valid amount is required" },
                 { status: 400 }
             );
         }
 
-        // Check if campaign exists and is active
-        const [campaignData] = await db
-            .select()
-            .from(campaign)
-            .where(eq(campaign.id, campaignId))
-            .limit(1);
+        let campaignData;
 
-        if (!campaignData) {
-            return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
-        }
+        // If no campaignId provided, find the first active campaign
+        if (!campaignId) {
+            const [firstActiveCampaign] = await db
+                .select()
+                .from(campaign)
+                .where(eq(campaign.status, "active"))
+                .orderBy(desc(campaign.createdAt))
+                .limit(1);
 
-        if (campaignData.status !== "active") {
-            return NextResponse.json(
-                { error: "This campaign is not accepting donations" },
-                { status: 400 }
-            );
+            if (!firstActiveCampaign) {
+                return NextResponse.json(
+                    { error: "No active campaigns available for donations" },
+                    { status: 400 }
+                );
+            }
+
+            campaignId = firstActiveCampaign.id;
+            campaignData = firstActiveCampaign;
+        } else {
+            // Check if campaign exists and is active
+            const [foundCampaign] = await db
+                .select()
+                .from(campaign)
+                .where(eq(campaign.id, campaignId))
+                .limit(1);
+
+            if (!foundCampaign) {
+                return NextResponse.json({ error: "Campaign not found" }, { status: 404 });
+            }
+
+            if (foundCampaign.status !== "active") {
+                return NextResponse.json(
+                    { error: "This campaign is not accepting donations" },
+                    { status: 400 }
+                );
+            }
+
+            campaignData = foundCampaign;
         }
 
         // Create donation record

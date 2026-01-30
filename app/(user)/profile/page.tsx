@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
     Select,
     SelectContent,
@@ -14,12 +16,33 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
     User,
     Loader2,
     Save,
     ArrowLeft,
     MapPin,
     Phone,
+    Shield,
+    Mail,
+    Calendar,
+    Heart,
+    AlertTriangle,
+    CheckCircle,
+    Home,
+    Bell,
+    HandHeart,
+    LogOut,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
@@ -39,6 +62,7 @@ export default function ProfilePage() {
     const { data: session, isPending: sessionLoading } = authClient.useSession();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
 
     const [formData, setFormData] = useState({
         phone: "",
@@ -88,6 +112,7 @@ export default function ProfilePage() {
 
     const handleSave = async () => {
         setSaving(true);
+        setSaved(false);
         try {
             const res = await fetch("/api/user/profile", {
                 method: "POST",
@@ -96,7 +121,8 @@ export default function ProfilePage() {
             });
 
             if (res.ok) {
-                router.push("/dashboard");
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
             }
         } catch (error) {
             console.error("Failed to save profile", error);
@@ -105,63 +131,152 @@ export default function ProfilePage() {
         }
     };
 
+    const handleLogout = async () => {
+        await authClient.signOut();
+        router.push("/");
+    };
+
+    // Calculate profile completion percentage
+    const calculateCompletion = () => {
+        const fields = [
+            formData.phone,
+            formData.gender,
+            formData.bloodGroup,
+            formData.district,
+            formData.address,
+            formData.pincode,
+            formData.emergencyContactName,
+            formData.emergencyContactPhone,
+        ];
+        const filled = fields.filter(f => f && f.trim() !== "").length;
+        return Math.round((filled / fields.length) * 100);
+    };
+
     if (sessionLoading || loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin" />
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <Loader2 className="w-8 h-8 animate-spin text-[#1a365d]" />
             </div>
         );
     }
 
     if (!session?.user) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
+            <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
                 <Card className="w-full max-w-md text-center">
                     <CardContent className="pt-8 pb-8">
-                        <h1 className="text-2xl font-bold mb-4">Sign In Required</h1>
-                        <Button onClick={() => router.push("/auth/login")}>Sign In</Button>
+                        <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <h1 className="text-2xl font-bold mb-4 text-[#1a365d]">Sign In Required</h1>
+                        <p className="text-gray-600 mb-6">Please sign in to access your profile</p>
+                        <Button onClick={() => router.push("/auth/login")} className="bg-[#1a365d]">
+                            Sign In
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
         );
     }
 
+    const completion = calculateCompletion();
+
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-            <header className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-                <div className="max-w-3xl mx-auto px-4 py-6">
-                    <div className="flex items-center gap-4">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-white hover:bg-white/20"
-                            onClick={() => router.push("/dashboard")}
-                        >
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back
-                        </Button>
-                        <div>
-                            <h1 className="text-2xl font-bold">Profile Settings</h1>
-                            <p className="text-white/80">Update your personal information</p>
+        <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
+            {/* Top Bar */}
+            <div className="bg-[#1a365d] text-white text-xs hidden sm:block">
+                <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between">
+                    <span>Government of Bihar Initiative</span>
+                    <span className="flex items-center gap-1">
+                        <Phone className="w-3 h-3" />
+                        Emergency: 112
+                    </span>
+                </div>
+            </div>
+
+            {/* Header */}
+            <header className="bg-white border-b-4 border-[#f97316]">
+                <div className="max-w-4xl mx-auto px-4 py-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => router.push("/dashboard")}
+                            >
+                                <ArrowLeft className="w-4 h-4 mr-1" />
+                                Back
+                            </Button>
+                            <div className="h-6 w-px bg-gray-300" />
+                            <h1 className="text-lg font-bold text-[#1a365d]">My Profile</h1>
                         </div>
+                        <Link href="/" className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded bg-[#1a365d] flex items-center justify-center">
+                                <Shield className="w-4 h-4 text-white" />
+                            </div>
+                            <span className="font-bold text-sm text-[#1a365d] hidden sm:inline">Bihar Sahayata</span>
+                        </Link>
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-3xl mx-auto px-4 py-8">
-                <div className="space-y-6">
+            <main className="max-w-4xl mx-auto px-4 py-6">
+                {/* User Info Card */}
+                <Card className="mb-6 border-l-4 border-l-[#1a365d]">
+                    <CardContent className="p-4 sm:p-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div className="w-16 h-16 rounded-lg bg-[#1a365d] text-white flex items-center justify-center text-2xl font-bold">
+                                {session.user.name?.[0]?.toUpperCase() || "U"}
+                            </div>
+                            <div className="flex-1">
+                                <h2 className="text-xl font-bold text-gray-900">{session.user.name}</h2>
+                                <p className="text-gray-600 flex items-center gap-1">
+                                    <Mail className="w-4 h-4" />
+                                    {session.user.email}
+                                </p>
+                                {formData.phone && (
+                                    <p className="text-gray-600 flex items-center gap-1">
+                                        <Phone className="w-4 h-4" />
+                                        {formData.phone}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="flex flex-col items-end gap-2">
+                                <div className="text-right">
+                                    <p className="text-sm text-gray-500">Profile Completion</p>
+                                    <p className="text-2xl font-bold text-[#1a365d]">{completion}%</p>
+                                </div>
+                                <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div 
+                                        className={`h-full transition-all ${completion === 100 ? 'bg-green-500' : 'bg-[#f97316]'}`}
+                                        style={{ width: `${completion}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Success Message */}
+                {saved && (
+                    <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <span className="text-green-700 font-medium">Profile saved successfully!</span>
+                    </div>
+                )}
+
+                <div className="grid gap-6">
                     {/* Contact Information */}
                     <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
+                        <CardHeader className="border-b bg-gray-50">
+                            <CardTitle className="flex items-center gap-2 text-[#1a365d]">
                                 <Phone className="w-5 h-5" />
                                 Contact Information
                             </CardTitle>
+                            <CardDescription>Your phone numbers for contact</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid md:grid-cols-2 gap-4">
+                        <CardContent className="p-4 sm:p-6 space-y-4">
+                            <div className="grid sm:grid-cols-2 gap-4">
                                 <div>
-                                    <Label htmlFor="phone">Phone Number</Label>
+                                    <Label htmlFor="phone">Phone Number *</Label>
                                     <Input
                                         id="phone"
                                         value={formData.phone}
@@ -169,6 +284,7 @@ export default function ProfilePage() {
                                             setFormData({ ...formData, phone: e.target.value })
                                         }
                                         placeholder="10-digit mobile number"
+                                        className="mt-1"
                                     />
                                 </div>
                                 <div>
@@ -180,6 +296,7 @@ export default function ProfilePage() {
                                             setFormData({ ...formData, alternatePhone: e.target.value })
                                         }
                                         placeholder="Optional"
+                                        className="mt-1"
                                     />
                                 </div>
                             </div>
@@ -188,23 +305,24 @@ export default function ProfilePage() {
 
                     {/* Personal Details */}
                     <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
+                        <CardHeader className="border-b bg-gray-50">
+                            <CardTitle className="flex items-center gap-2 text-[#1a365d]">
                                 <User className="w-5 h-5" />
                                 Personal Details
                             </CardTitle>
+                            <CardDescription>Basic information about you</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid md:grid-cols-2 gap-4">
+                        <CardContent className="p-4 sm:p-6 space-y-4">
+                            <div className="grid sm:grid-cols-2 gap-4">
                                 <div>
-                                    <Label htmlFor="gender">Gender</Label>
+                                    <Label htmlFor="gender">Gender *</Label>
                                     <Select
                                         value={formData.gender}
                                         onValueChange={(value) =>
                                             setFormData({ ...formData, gender: value })
                                         }
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="mt-1">
                                             <SelectValue placeholder="Select gender" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -215,14 +333,14 @@ export default function ProfilePage() {
                                     </Select>
                                 </div>
                                 <div>
-                                    <Label htmlFor="bloodGroup">Blood Group</Label>
+                                    <Label htmlFor="bloodGroup">Blood Group *</Label>
                                     <Select
                                         value={formData.bloodGroup}
                                         onValueChange={(value) =>
                                             setFormData({ ...formData, bloodGroup: value })
                                         }
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="mt-1">
                                             <SelectValue placeholder="Select blood group" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -240,78 +358,89 @@ export default function ProfilePage() {
 
                     {/* Location */}
                     <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
+                        <CardHeader className="border-b bg-gray-50">
+                            <CardTitle className="flex items-center gap-2 text-[#1a365d]">
                                 <MapPin className="w-5 h-5" />
-                                Location
+                                Location Details
                             </CardTitle>
+                            <CardDescription>Your residential address</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div>
-                                <Label htmlFor="district">District</Label>
-                                <Select
-                                    value={formData.district}
-                                    onValueChange={(value) =>
-                                        setFormData({ ...formData, district: value })
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select district" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {BIHAR_DISTRICTS.map((d) => (
-                                            <SelectItem key={d} value={d}>
-                                                {d}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                        <CardContent className="p-4 sm:p-6 space-y-4">
+                            <div className="grid sm:grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="district">District *</Label>
+                                    <Select
+                                        value={formData.district}
+                                        onValueChange={(value) =>
+                                            setFormData({ ...formData, district: value })
+                                        }
+                                    >
+                                        <SelectTrigger className="mt-1">
+                                            <SelectValue placeholder="Select district" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {BIHAR_DISTRICTS.map((d) => (
+                                                <SelectItem key={d} value={d}>
+                                                    {d}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Label htmlFor="pincode">Pincode *</Label>
+                                    <Input
+                                        id="pincode"
+                                        value={formData.pincode}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, pincode: e.target.value })
+                                        }
+                                        placeholder="6-digit pincode"
+                                        className="mt-1"
+                                        maxLength={6}
+                                    />
+                                </div>
                             </div>
                             <div>
-                                <Label htmlFor="address">Address</Label>
+                                <Label htmlFor="address">Full Address *</Label>
                                 <Input
                                     id="address"
                                     value={formData.address}
                                     onChange={(e) =>
                                         setFormData({ ...formData, address: e.target.value })
                                     }
-                                    placeholder="Your full address"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="pincode">Pincode</Label>
-                                <Input
-                                    id="pincode"
-                                    value={formData.pincode}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, pincode: e.target.value })
-                                    }
-                                    placeholder="6-digit pincode"
+                                    placeholder="House no, Street, Area, Landmark"
+                                    className="mt-1"
                                 />
                             </div>
                         </CardContent>
                     </Card>
 
                     {/* Emergency Contact */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Emergency Contact</CardTitle>
+                    <Card className="border-orange-200">
+                        <CardHeader className="border-b bg-orange-50">
+                            <CardTitle className="flex items-center gap-2 text-orange-700">
+                                <AlertTriangle className="w-5 h-5" />
+                                Emergency Contact
+                            </CardTitle>
+                            <CardDescription>Person to contact in case of emergency</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid md:grid-cols-2 gap-4">
+                        <CardContent className="p-4 sm:p-6 space-y-4">
+                            <div className="grid sm:grid-cols-2 gap-4">
                                 <div>
-                                    <Label htmlFor="emergencyContactName">Contact Name</Label>
+                                    <Label htmlFor="emergencyContactName">Contact Name *</Label>
                                     <Input
                                         id="emergencyContactName"
                                         value={formData.emergencyContactName}
                                         onChange={(e) =>
                                             setFormData({ ...formData, emergencyContactName: e.target.value })
                                         }
-                                        placeholder="Emergency contact name"
+                                        placeholder="Full name"
+                                        className="mt-1"
                                     />
                                 </div>
                                 <div>
-                                    <Label htmlFor="emergencyContactPhone">Contact Phone</Label>
+                                    <Label htmlFor="emergencyContactPhone">Contact Phone *</Label>
                                     <Input
                                         id="emergencyContactPhone"
                                         value={formData.emergencyContactPhone}
@@ -319,6 +448,7 @@ export default function ProfilePage() {
                                             setFormData({ ...formData, emergencyContactPhone: e.target.value })
                                         }
                                         placeholder="10-digit mobile number"
+                                        className="mt-1"
                                     />
                                 </div>
                             </div>
@@ -330,13 +460,14 @@ export default function ProfilePage() {
                                         setFormData({ ...formData, emergencyContactRelation: value })
                                     }
                                 >
-                                    <SelectTrigger>
+                                    <SelectTrigger className="mt-1">
                                         <SelectValue placeholder="Select relation" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="parent">Parent</SelectItem>
                                         <SelectItem value="spouse">Spouse</SelectItem>
                                         <SelectItem value="sibling">Sibling</SelectItem>
+                                        <SelectItem value="child">Child</SelectItem>
                                         <SelectItem value="friend">Friend</SelectItem>
                                         <SelectItem value="other">Other</SelectItem>
                                     </SelectContent>
@@ -345,21 +476,78 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
 
-                    <Button onClick={handleSave} disabled={saving} className="w-full">
-                        {saving ? (
-                            <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Saving...
-                            </>
-                        ) : (
-                            <>
-                                <Save className="w-4 h-4 mr-2" />
-                                Save Profile
-                            </>
-                        )}
-                    </Button>
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <Button 
+                            onClick={handleSave} 
+                            disabled={saving} 
+                            className="flex-1 bg-[#1a365d] hover:bg-[#1e4070]"
+                        >
+                            {saving ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Saving...
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="w-4 h-4 mr-2" />
+                                    Save Profile
+                                </>
+                            )}
+                        </Button>
+                        
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                                    <LogOut className="w-4 h-4 mr-2" />
+                                    Logout
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Are you sure you want to logout from your account?
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleLogout} className="bg-red-600">
+                                        Logout
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
                 </div>
             </main>
+
+            {/* Mobile Bottom Navigation */}
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-50">
+                <div className="flex items-center justify-around py-2">
+                    <Link href="/" className="flex flex-col items-center py-2 px-3 text-gray-500">
+                        <Home className="w-5 h-5" />
+                        <span className="text-[10px] mt-0.5">Home</span>
+                    </Link>
+                    <Link href="/disasters" className="flex flex-col items-center py-2 px-3 text-gray-500">
+                        <Bell className="w-5 h-5" />
+                        <span className="text-[10px] mt-0.5">Alerts</span>
+                    </Link>
+                    <Link href="/panic" className="-mt-5">
+                        <div className="w-14 h-14 rounded-full bg-red-600 flex items-center justify-center border-4 border-white shadow-lg">
+                            <AlertTriangle className="w-6 h-6 text-white" />
+                        </div>
+                    </Link>
+                    <Link href="/volunteer/dashboard" className="flex flex-col items-center py-2 px-3 text-gray-500">
+                        <HandHeart className="w-5 h-5" />
+                        <span className="text-[10px] mt-0.5">Volunteer</span>
+                    </Link>
+                    <Link href="/profile" className="flex flex-col items-center py-2 px-3 text-[#f97316]">
+                        <User className="w-5 h-5" />
+                        <span className="text-[10px] mt-0.5 font-medium">Profile</span>
+                    </Link>
+                </div>
+            </nav>
         </div>
     );
 }

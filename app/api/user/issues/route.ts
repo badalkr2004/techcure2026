@@ -35,7 +35,10 @@ export async function GET(request: NextRequest) {
         // Get assignments for these issues
         const issueIds = issues.map((i) => i.issue.id);
 
-        let assignments = [];
+        let assignments: {
+            assignment: typeof issueAssignment.$inferSelect;
+            volunteer: typeof volunteerProfile.$inferSelect | null;
+        }[] = [];
         if (issueIds.length > 0) {
             assignments = await db
                 .select({

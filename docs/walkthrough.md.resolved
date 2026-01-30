@@ -1,0 +1,59 @@
+# Disaster + Donation Features - Complete
+
+## New APIs Created
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/campaigns` | GET/POST | List/create fundraising campaigns |
+| `/api/donations` | GET/POST | Process donations (demo auto-complete) |
+| `/api/teams` | GET/POST | List/create volunteer teams |
+| `/api/volunteer/activations` | GET/PATCH | Get team disaster activations |
+
+---
+
+## Donation Feature
+
+### `/disasters` Page Enhancements
+- **Active Relief Campaigns** section at top
+- Progress bars showing raised vs goal
+- **Quick Donate** buttons per campaign
+- Donation dialog with:
+  - Quick amounts: ₹100, ₹500, ₹1000, ₹2500, ₹5000, ₹10000
+  - Custom amount input
+  - Anonymous donation toggle
+  - Donor name/email/phone fields
+  - Success confirmation
+
+### Flow
+1. User views `/disasters`
+2. Sees active campaigns at top
+3. Clicks "Donate" → Modal opens
+4. Selects/enters amount → Submits
+5. Demo mode: Auto-completes donation
+6. Campaign stats update in real-time
+
+---
+
+## Team Activation Feature
+
+### Volunteer Dashboard Updates
+- **Disaster Team Activations** section (red highlight)
+- Shows activations for teams user belongs to
+- Displays: disaster title, team name, assigned area, responsibilities
+- Status badges: `activated`, `deployed`, `completed`
+- Quick link to disaster details
+
+### Admin Flow
+1. Admin declares disaster at `/admin/disasters`
+2. Activates teams with assigned areas
+3. Volunteers see activation in their dashboard
+4. Teams can update status to `deployed`/`completed`
+
+---
+
+## TypeScript: ✓ No errors
+
+## Quick Test
+
+1. **Donations**: Go to `/disasters` → Click "Donate" on any campaign
+2. **Team Activations**: Create team → Admin activates for disaster → Volunteer sees in dashboard

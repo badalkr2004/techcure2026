@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/db/drizzle";
-import { campaign, user, donation } from "@/db/schema";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { campaign, user } from "@/db/schema";
+import { eq, desc, and } from "drizzle-orm";
 
 /**
  * GET /api/admin/campaigns

@@ -1,0 +1,78 @@
+# Bihar Sahayata - Public Welfare & Disaster Management Platform
+
+## Overview
+Building a comprehensive public welfare platform for Bihar that handles:
+- 🚨 Critical panic alerts (anonymous for emergencies)
+- 👤 Authenticated user issue reporting
+- 🙋 Volunteer & team management
+- 🌊 Disaster response coordination
+- 💰 Fundraising & charity campaigns
+
+---
+
+## Tasks
+
+### Phase 1: Database Schema Design
+- [x] Understand existing project setup (Better Auth + Drizzle ORM + PostgreSQL)
+- [/] Design and create database schemas
+  - [ ] User profile schema (extends auth user)
+  - [ ] Volunteer profile schema
+  - [ ] Volunteer teams & membership schemas
+  - [ ] Issue types schema (configurable)
+  - [ ] Unified issue/alert schema
+  - [ ] Issue assignment schema
+  - [ ] Disaster management schemas
+  - [ ] Fundraising campaign schema
+  - [ ] Donation schema
+  - [ ] Bihar districts schema
+  - [ ] Notifications schema
+
+### Phase 2: Core API Development
+- [ ] User profile APIs (create, update, get)
+- [ ] Volunteer onboarding API (with email verification)
+- [ ] Volunteer profile management APIs
+- [ ] Team creation and management APIs
+- [ ] Team membership APIs
+
+### Phase 3: Issue & Alert System
+- [x] Public panic alert API (no auth required for critical)
+- [x] Authenticated issue reporting API
+- [x] Issue assignment APIs
+- [x] Issue resolution and reporting APIs
+- [x] Nearby volunteer matching logic
+
+### Phase 4: Disaster Management
+- [x] Disaster declaration API (admin)
+- [x] Team activation for disasters
+- [x] Disaster-linked issues
+- [x] Public disaster listing page
+- [x] Admin disaster dashboard
+
+### Phase 5: Fundraising & Charity
+- [x] Campaign creation and management APIs
+- [ ] Donation processing (Razorpay integration - demo mode active)
+- [x] Donation API (demo auto-complete)
+- [ ] Campaign updates APIs
+- [ ] Donor management
+
+### Phase 6: UI/UX Implementation
+- [x] Public panic alert page
+- [ ] User dashboard and profile
+- [x] Issue reporting flow
+- [x] Volunteer onboarding UI
+- [x] Volunteer dashboard with disaster activations
+- [x] Issue detail page with Google Maps
+- [ ] Team management UI
+- [x] Disaster listing with donation section
+- [ ] Admin dashboard
+
+### Phase 7: Real-time & Notifications
+- [ ] Push notifications setup
+- [ ] Real-time alert notifications
+- [ ] Location-based volunteer matching
+
+### Phase 8: Testing & Deployment
+- [ ] Seed Bihar district data
+- [ ] Seed issue types
+- [ ] End-to-end testing
+- [ ] Production deployment
