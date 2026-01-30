@@ -45,6 +45,8 @@ interface Issue {
     severity: string;
     status: string;
     district: string | null;
+    address: string | null;
+    landmark: string | null;
     victimPhone: string;
     latitude: number;
     longitude: number;
@@ -53,8 +55,19 @@ interface Issue {
         name: string;
         icon: string;
         color: string;
-    };
+    } | null;
 }
+
+// Helper to get location display text
+const getLocationText = (issue: Issue): string => {
+    if (issue.address) return issue.address;
+    if (issue.landmark) return `Near ${issue.landmark}`;
+    if (issue.district) return issue.district;
+    if (issue.latitude && issue.longitude) {
+        return `${issue.latitude.toFixed(4)}°N, ${issue.longitude.toFixed(4)}°E`;
+    }
+    return "Location captured";
+};
 
 const rankColors: Record<string, string> = {
     beginner: "bg-gray-500",
@@ -344,7 +357,7 @@ export default function VolunteerDashboardPage() {
                                                 </div>
                                                 <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
                                                     <MapPin className="w-3 h-3" />
-                                                    {issue.district || "Unknown location"}
+                                                    {getLocationText(issue)}
                                                     <span className="mx-1">•</span>
                                                     <Clock className="w-3 h-3" />
                                                     {new Date(issue.createdAt).toLocaleTimeString()}
