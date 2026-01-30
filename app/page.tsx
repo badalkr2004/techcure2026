@@ -105,7 +105,7 @@ const translations = {
         footerContact: "Contact Us",
         footerEmergency: "Emergency: 112",
         footerRights: "© 2026 Bihar Sahayata Portal. Government of Bihar. All rights reserved.",
-        footerDisclaimer: "Official Government Portal",
+        footerDisclaimer: "Initiative by Youth of Bihar",
         navHome: "Home",
         navAlerts: "Alerts",
         navSOS: "SOS",
