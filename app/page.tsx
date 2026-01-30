@@ -228,10 +228,47 @@ export default function LandingPage() {
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [donating, setDonating] = useState(false);
     const [donationSuccess, setDonationSuccess] = useState(false);
+    const [isVolunteer, setIsVolunteer] = useState(false);
+    const [checkingVolunteer, setCheckingVolunteer] = useState(false);
     const t = translations[lang];
+
+    // Check if user is already a volunteer
+    useEffect(() => {
+        // Skip if session is still loading
+        if (sessionLoading) {
+            return;
+        }
+
+        const checkVolunteerStatus = async () => {
+            if (!session?.user) {
+                setIsVolunteer(false);
+                setCheckingVolunteer(false);
+                return;
+            }
+            
+            setCheckingVolunteer(true);
+            try {
+                const res = await fetch("/api/volunteer/profile");
+                // If API returns 200, user is a volunteer
+                // If API returns 404, user is not a volunteer
+                if (res.ok) {
+                    setIsVolunteer(true);
+                } else {
+                    setIsVolunteer(false);
+                }
+            } catch {
+                setIsVolunteer(false);
+            } finally {
+                setCheckingVolunteer(false);
+            }
+        };
+
+        checkVolunteerStatus();
+    }, [sessionLoading, session?.user?.id]);
 
     const handleLogout = async () => {
         await authClient.signOut();
+        setIsVolunteer(false);
         router.refresh();
     };
 
@@ -346,9 +383,21 @@ export default function LandingPage() {
                             <Link href="/teams" className="text-sm font-medium text-gray-600 hover:text-[#1a365d]">
                                 {t.menuTeams}
                             </Link>
-                            <Link href="/volunteer/onboard" className="text-sm font-medium text-gray-600 hover:text-[#1a365d]">
-                                {t.joinVolunteer}
-                            </Link>
+                            {session?.user ? (
+                                isVolunteer ? (
+                                    <Link href="/volunteer/dashboard" className="text-sm font-medium text-gray-600 hover:text-[#1a365d]">
+                                        {lang === "en" ? "Volunteer Dashboard" : "स्वयंसेवक डैशबोर्ड"}
+                                    </Link>
+                                ) : (
+                                    <Link href="/volunteer/onboard" className="text-sm font-medium text-gray-600 hover:text-[#1a365d]">
+                                        {t.joinVolunteer}
+                                    </Link>
+                                )
+                            ) : (
+                                <Link href="/volunteer/onboard" className="text-sm font-medium text-gray-600 hover:text-[#1a365d]">
+                                    {t.joinVolunteer}
+                                </Link>
+                            )}
                         </nav>
 
                         {/* Desktop Actions */}
@@ -388,6 +437,14 @@ export default function LandingPage() {
                                                 {lang === "en" ? "My Issues" : "मेरी समस्याएं"}
                                             </Link>
                                         </DropdownMenuItem>
+                                        {isVolunteer && (
+                                            <DropdownMenuItem asChild>
+                                                <Link href="/volunteer/dashboard" className="cursor-pointer">
+                                                    <HandHeart className="w-4 h-4 mr-2" />
+                                                    {lang === "en" ? "Volunteer Dashboard" : "स्वयंसेवक डैशबोर्ड"}
+                                                </Link>
+                                            </DropdownMenuItem>
+                                        )}
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
                                             <LogOut className="w-4 h-4 mr-2" />
@@ -488,14 +545,25 @@ export default function LandingPage() {
                                 <Users className="w-5 h-5 text-blue-600" />
                                 {t.menuTeams}
                             </Link>
-                            <Link
-                                href="/volunteer/onboard"
-                                className="flex items-center gap-3 px-4 py-3 rounded hover:bg-gray-100"
-                                onClick={() => setMenuOpen(false)}
-                            >
-                                <HandHeart className="w-5 h-5 text-green-600" />
-                                {t.joinVolunteer}
-                            </Link>
+                            {session?.user && isVolunteer ? (
+                                <Link
+                                    href="/volunteer/dashboard"
+                                    className="flex items-center gap-3 px-4 py-3 rounded hover:bg-gray-100"
+                                    onClick={() => setMenuOpen(false)}
+                                >
+                                    <HandHeart className="w-5 h-5 text-green-600" />
+                                    {lang === "en" ? "Volunteer Dashboard" : "स्वयंसेवक डैशबोर्ड"}
+                                </Link>
+                            ) : (
+                                <Link
+                                    href="/volunteer/onboard"
+                                    className="flex items-center gap-3 px-4 py-3 rounded hover:bg-gray-100"
+                                    onClick={() => setMenuOpen(false)}
+                                >
+                                    <HandHeart className="w-5 h-5 text-green-600" />
+                                    {t.joinVolunteer}
+                                </Link>
+                            )}
                             <hr className="my-2" />
                             
                             {session?.user ? (
@@ -554,16 +622,29 @@ export default function LandingPage() {
                                     {t.heroDescription}
                                 </p>
                                 <div className="flex flex-wrap gap-3">
-                                    <Button
-                                        size="lg"
-                                        className="bg-[#f97316] hover:bg-[#ea580c] text-white"
-                                        asChild
-                                    >
-                                        <Link href="/volunteer/onboard">
-                                            <HandHeart className="w-4 h-4 mr-2" />
-                                            {t.joinVolunteer}
-                                        </Link>
-                                    </Button>
+                                    {session?.user && isVolunteer ? (
+                                        <Button
+                                            size="lg"
+                                            className="bg-[#f97316] hover:bg-[#ea580c] text-white"
+                                            asChild
+                                        >
+                                            <Link href="/volunteer/dashboard">
+                                                <HandHeart className="w-4 h-4 mr-2" />
+                                                {lang === "en" ? "Volunteer Dashboard" : "स्वयंसेवक डैशबोर्ड"}
+                                            </Link>
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            size="lg"
+                                            className="bg-[#f97316] hover:bg-[#ea580c] text-white"
+                                            asChild
+                                        >
+                                            <Link href="/volunteer/onboard">
+                                                <HandHeart className="w-4 h-4 mr-2" />
+                                                {t.joinVolunteer}
+                                            </Link>
+                                        </Button>
+                                    )}
                                     <Button
                                         size="lg"
                                         variant="outline"
@@ -614,15 +695,29 @@ export default function LandingPage() {
                             {t.quickLinks}
                         </h2>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <Link
-                                href="/volunteer/onboard"
-                                className="flex items-center gap-3 p-4 border rounded-lg hover:border-[#f97316] hover:bg-orange-50 transition-colors"
-                            >
-                                <div className="w-10 h-10 rounded bg-orange-100 flex items-center justify-center">
-                                    <HandHeart className="w-5 h-5 text-[#f97316]" />
-                                </div>
-                                <span className="text-sm font-medium text-gray-700">{t.joinVolunteer}</span>
-                            </Link>
+                            {session?.user && isVolunteer ? (
+                                <Link
+                                    href="/volunteer/dashboard"
+                                    className="flex items-center gap-3 p-4 border rounded-lg hover:border-[#f97316] hover:bg-orange-50 transition-colors"
+                                >
+                                    <div className="w-10 h-10 rounded bg-orange-100 flex items-center justify-center">
+                                        <HandHeart className="w-5 h-5 text-[#f97316]" />
+                                    </div>
+                                    <span className="text-sm font-medium text-gray-700">
+                                        {lang === "en" ? "Volunteer Dashboard" : "स्वयंसेवक डैशबोर्ड"}
+                                    </span>
+                                </Link>
+                            ) : (
+                                <Link
+                                    href="/volunteer/onboard"
+                                    className="flex items-center gap-3 p-4 border rounded-lg hover:border-[#f97316] hover:bg-orange-50 transition-colors"
+                                >
+                                    <div className="w-10 h-10 rounded bg-orange-100 flex items-center justify-center">
+                                        <HandHeart className="w-5 h-5 text-[#f97316]" />
+                                    </div>
+                                    <span className="text-sm font-medium text-gray-700">{t.joinVolunteer}</span>
+                                </Link>
+                            )}
                             <Link
                                 href="/panic"
                                 className="flex items-center gap-3 p-4 border rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors"
@@ -787,16 +882,29 @@ export default function LandingPage() {
                         <h2 className="text-xl sm:text-2xl font-bold mb-2">{t.ctaTitle}</h2>
                         <p className="text-blue-200 mb-6">{t.ctaSubtitle}</p>
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                            <Button
-                                size="lg"
-                                className="bg-[#f97316] hover:bg-[#ea580c] text-white"
-                                asChild
-                            >
-                                <Link href="/volunteer/onboard">
-                                    <HandHeart className="w-4 h-4 mr-2" />
-                                    {t.ctaVolunteer}
-                                </Link>
-                            </Button>
+                            {session?.user && isVolunteer ? (
+                                <Button
+                                    size="lg"
+                                    className="bg-[#f97316] hover:bg-[#ea580c] text-white"
+                                    asChild
+                                >
+                                    <Link href="/volunteer/dashboard">
+                                        <HandHeart className="w-4 h-4 mr-2" />
+                                        {lang === "en" ? "Volunteer Dashboard" : "स्वयंसेवक डैशबोर्ड"}
+                                    </Link>
+                                </Button>
+                            ) : (
+                                <Button
+                                    size="lg"
+                                    className="bg-[#f97316] hover:bg-[#ea580c] text-white"
+                                    asChild
+                                >
+                                    <Link href="/volunteer/onboard">
+                                        <HandHeart className="w-4 h-4 mr-2" />
+                                        {t.ctaVolunteer}
+                                    </Link>
+                                </Button>
+                            )}
                             <Button
                                 size="lg"
                                 variant="outline"
@@ -831,7 +939,11 @@ export default function LandingPage() {
                                 <h4 className="font-semibold mb-4">{t.footerLinks}</h4>
                                 <ul className="space-y-2 text-sm text-gray-400">
                                     <li><Link href="/disasters" className="hover:text-white">Disaster Alerts</Link></li>
-                                    <li><Link href="/volunteer/onboard" className="hover:text-white">Become Volunteer</Link></li>
+                                    {session?.user && isVolunteer ? (
+                                        <li><Link href="/volunteer/dashboard" className="hover:text-white">Volunteer Dashboard</Link></li>
+                                    ) : (
+                                        <li><Link href="/volunteer/onboard" className="hover:text-white">Become Volunteer</Link></li>
+                                    )}
                                     <li><Link href="/teams" className="hover:text-white">Relief Teams</Link></li>
                                     <li><Link href="/panic" className="hover:text-white">Report Emergency</Link></li>
                                 </ul>
