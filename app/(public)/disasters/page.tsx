@@ -33,6 +33,7 @@ import {
     CheckCircle,
     Gift,
 } from "lucide-react";
+import { PageWrapper } from "@/components/layout";
 
 interface Disaster {
     id: string;
@@ -209,21 +210,21 @@ export default function DisastersPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <PageWrapper showBackButton>
             {/* Header */}
-            <header className="bg-gradient-to-r from-red-600 to-orange-600 text-white">
-                <div className="max-w-6xl mx-auto px-4 py-8">
-                    <h1 className="text-3xl font-bold flex items-center gap-3">
-                        <AlertTriangle className="w-8 h-8" />
+            <header className="bg-[#1a365d] text-white">
+                <div className="max-w-6xl mx-auto px-4 py-6">
+                    <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
+                        <AlertTriangle className="w-7 h-7" />
                         Disaster Alerts & Relief
                     </h1>
-                    <p className="mt-2 text-white/80">
-                        Live updates on ongoing disasters in Bihar - Donate to support relief efforts
+                    <p className="mt-2 text-blue-100 text-sm sm:text-base">
+                        Live updates on ongoing disasters - Donate to support relief efforts
                     </p>
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto px-4 py-8">
+            <main className="max-w-6xl mx-auto px-4 py-6">
                 {/* Quick Donate Section */}
                 {campaigns.length > 0 && (
                     <Card className="mb-8 bg-gradient-to-r from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20 border-pink-200 dark:border-pink-800">
@@ -453,7 +454,7 @@ export default function DisastersPage() {
 
             {/* Donation Dialog */}
             <Dialog open={showDonateDialog} onOpenChange={setShowDonateDialog}>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                     {donationSuccess ? (
                         <div className="text-center py-8">
                             <div className="w-20 h-20 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-4">
@@ -571,7 +572,7 @@ export default function DisastersPage() {
                                 </div>
                             </div>
 
-                            <DialogFooter>
+                            <DialogFooter className="gap-2 sm:gap-0">
                                 <Button variant="outline" onClick={closeDonateDialog}>
                                     Cancel
                                 </Button>
@@ -592,6 +593,6 @@ export default function DisastersPage() {
                     )}
                 </DialogContent>
             </Dialog>
-        </div>
+        </PageWrapper>
     );
 }

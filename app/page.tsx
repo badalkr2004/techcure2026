@@ -374,7 +374,7 @@ export default function LandingPage() {
 
                         {/* Desktop Nav */}
                         <nav className="hidden lg:flex items-center gap-6">
-                            <Link href="/" className="text-sm font-medium text-[#1a365d] hover:text-[#f97316] border-b-2 border-[#f97316] pb-1">
+                            <Link href="/" className="text-sm font-medium text-[#f97316] border-b-2 border-[#f97316] pb-1">
                                 {t.navHome}
                             </Link>
                             <Link href="/disasters" className="text-sm font-medium text-gray-600 hover:text-[#1a365d]">
@@ -919,7 +919,7 @@ export default function LandingPage() {
                 </section>
 
                 {/* Footer */}
-                <footer className="bg-gray-900 text-white py-8 sm:py-12">
+                <footer className="bg-gray-900 text-white py-8 sm:py-12 hidden md:block">
                     <div className="max-w-7xl mx-auto px-4">
                         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
                             <div className="sm:col-span-2 lg:col-span-1">

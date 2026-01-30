@@ -13,7 +13,10 @@ import {
     CheckCircle,
     XCircle,
     Navigation,
+    ChevronLeft,
 } from "lucide-react";
+import Link from "next/link";
+import { MobileBottomNav } from "@/components/layout";
 
 interface LocationState {
     latitude: number | null;
@@ -156,29 +159,46 @@ export default function PanicPage() {
     // Success state
     if (alertResponse?.success) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 flex items-center justify-center p-4">
-                <Card className="w-full max-w-md text-center border-green-200 dark:border-green-800">
-                    <CardContent className="pt-8 pb-8">
-                        <div className="mb-6">
-                            <CheckCircle className="w-20 h-20 text-green-600 mx-auto animate-pulse" />
+            <div className="min-h-screen bg-green-50 flex flex-col pb-20 md:pb-0">
+                <header className="bg-green-600 text-white py-4 px-4 shadow-lg sticky top-0 z-50">
+                    <div className="max-w-lg mx-auto flex items-center gap-3">
+                        <Link href="/" className="p-1 -ml-1 rounded hover:bg-green-700 transition-colors">
+                            <ChevronLeft className="w-6 h-6" />
+                        </Link>
+                        <div>
+                            <h1 className="font-bold text-xl">Alert Sent</h1>
+                            <p className="text-green-100 text-sm">Help is on the way</p>
                         </div>
-                        <h1 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-4">
-                            Alert Sent Successfully!
-                        </h1>
-                        <p className="text-gray-600 dark:text-gray-300 mb-4">
-                            Your emergency alert has been sent. Help is on the way.
-                        </p>
-                        <div className="bg-green-100 dark:bg-green-900/50 rounded-lg p-4 mb-6">
-                            <p className="text-sm text-green-800 dark:text-green-200">
-                                <strong>{alertResponse.nearbyVolunteersCount}</strong> volunteers
-                                have been notified in your area.
+                    </div>
+                </header>
+                <div className="flex-1 flex items-center justify-center p-4">
+                    <Card className="w-full max-w-md text-center border-green-200">
+                        <CardContent className="pt-8 pb-8">
+                            <div className="mb-6">
+                                <CheckCircle className="w-20 h-20 text-green-600 mx-auto animate-pulse" />
+                            </div>
+                            <h1 className="text-2xl font-bold text-green-700 mb-4">
+                                Alert Sent Successfully!
+                            </h1>
+                            <p className="text-gray-600 mb-4">
+                                Your emergency alert has been sent. Help is on the way.
                             </p>
-                        </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Alert ID: <code className="font-mono">{alertResponse.alertId}</code>
-                        </p>
-                    </CardContent>
-                </Card>
+                            <div className="bg-green-100 rounded-lg p-4 mb-6">
+                                <p className="text-sm text-green-800">
+                                    <strong>{alertResponse.nearbyVolunteersCount}</strong> volunteers
+                                    have been notified in your area.
+                                </p>
+                            </div>
+                            <p className="text-sm text-gray-500">
+                                Alert ID: <code className="font-mono">{alertResponse.alertId}</code>
+                            </p>
+                            <Button asChild className="mt-4">
+                                <Link href="/">Return Home</Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+                <MobileBottomNav />
             </div>
         );
     }
@@ -186,45 +206,62 @@ export default function PanicPage() {
     // Error state
     if (alertResponse?.error) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-red-50 to-red-100 dark:from-red-950 dark:to-red-900 flex items-center justify-center p-4">
-                <Card className="w-full max-w-md text-center border-red-200 dark:border-red-800">
-                    <CardContent className="pt-8 pb-8">
-                        <div className="mb-6">
-                            <XCircle className="w-20 h-20 text-red-600 mx-auto" />
+            <div className="min-h-screen bg-red-50 flex flex-col pb-20 md:pb-0">
+                <header className="bg-red-600 text-white py-4 px-4 shadow-lg sticky top-0 z-50">
+                    <div className="max-w-lg mx-auto flex items-center gap-3">
+                        <Link href="/" className="p-1 -ml-1 rounded hover:bg-red-700 transition-colors">
+                            <ChevronLeft className="w-6 h-6" />
+                        </Link>
+                        <div>
+                            <h1 className="font-bold text-xl">Error</h1>
+                            <p className="text-red-100 text-sm">Failed to send alert</p>
                         </div>
-                        <h1 className="text-2xl font-bold text-red-700 dark:text-red-400 mb-4">
-                            Failed to Send Alert
-                        </h1>
-                        <p className="text-gray-600 dark:text-gray-300 mb-6">
-                            {alertResponse.error}
-                        </p>
-                        <div className="space-y-3">
-                            <Button
-                                onClick={() => setAlertResponse(null)}
-                                className="w-full bg-red-600 hover:bg-red-700"
-                            >
-                                Try Again
-                            </Button>
-                            <p className="text-sm text-gray-500">
-                                Emergency: <strong>112</strong> | Police: <strong>100</strong> |
-                                Ambulance: <strong>108</strong>
+                    </div>
+                </header>
+                <div className="flex-1 flex items-center justify-center p-4">
+                    <Card className="w-full max-w-md text-center border-red-200">
+                        <CardContent className="pt-8 pb-8">
+                            <div className="mb-6">
+                                <XCircle className="w-20 h-20 text-red-600 mx-auto" />
+                            </div>
+                            <h1 className="text-2xl font-bold text-red-700 mb-4">
+                                Failed to Send Alert
+                            </h1>
+                            <p className="text-gray-600 mb-6">
+                                {alertResponse.error}
                             </p>
-                        </div>
-                    </CardContent>
-                </Card>
+                            <div className="space-y-3">
+                                <Button
+                                    onClick={() => setAlertResponse(null)}
+                                    className="w-full bg-red-600 hover:bg-red-700"
+                                >
+                                    Try Again
+                                </Button>
+                                <p className="text-sm text-gray-500">
+                                    Emergency: <strong>112</strong> | Police: <strong>100</strong> |
+                                    Ambulance: <strong>108</strong>
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+                <MobileBottomNav />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-red-50 to-orange-50 dark:from-gray-950 dark:to-gray-900">
+        <div className="min-h-screen bg-gray-50 flex flex-col pb-20 md:pb-0">
             {/* Header */}
-            <header className="bg-red-600 text-white py-4 px-4 shadow-lg">
+            <header className="bg-red-600 text-white py-4 px-4 shadow-lg sticky top-0 z-50">
                 <div className="max-w-lg mx-auto flex items-center gap-3">
-                    <AlertTriangle className="w-8 h-8" />
+                    <Link href="/" className="p-1 -ml-1 rounded hover:bg-red-700 transition-colors">
+                        <ChevronLeft className="w-6 h-6" />
+                    </Link>
+                    <AlertTriangle className="w-7 h-7" />
                     <div>
-                        <h1 className="font-bold text-xl">Bihar Sahayata</h1>
-                        <p className="text-red-100 text-sm">Emergency Panic Alert</p>
+                        <h1 className="font-bold text-xl">Emergency SOS</h1>
+                        <p className="text-red-100 text-sm">Panic Alert System</p>
                     </div>
                 </div>
             </header>
@@ -347,27 +384,27 @@ export default function PanicPage() {
 
                 {/* Emergency Numbers */}
                 <div className="mt-8 text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                    <p className="text-sm text-gray-500 mb-3">
                         You can also call emergency services directly:
                     </p>
                     <div className="flex justify-center gap-4">
                         <a
                             href="tel:112"
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
                         >
                             <Phone className="w-4 h-4" />
                             <span className="font-bold">112</span>
                         </a>
                         <a
                             href="tel:100"
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
                         >
                             <Phone className="w-4 h-4" />
                             <span className="font-bold">100</span>
                         </a>
                         <a
                             href="tel:108"
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
                         >
                             <Navigation className="w-4 h-4" />
                             <span className="font-bold">108</span>
@@ -375,6 +412,8 @@ export default function PanicPage() {
                     </div>
                 </div>
             </main>
+
+            <MobileBottomNav />
         </div>
     );
 }

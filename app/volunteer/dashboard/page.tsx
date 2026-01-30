@@ -27,6 +27,7 @@ import {
     ShieldAlert,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { PageWrapper } from "@/components/layout";
 
 interface VolunteerProfile {
     id: string;
@@ -194,45 +195,51 @@ export default function VolunteerDashboardPage() {
     // Loading state
     if (sessionLoading || loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-            </div>
+            <PageWrapper>
+                <div className="min-h-[50vh] flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                </div>
+            </PageWrapper>
         );
     }
 
     // Not logged in
     if (!session?.user) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
-                <Card className="w-full max-w-md text-center">
-                    <CardContent className="pt-8 pb-8">
-                        <Shield className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-                        <h1 className="text-2xl font-bold mb-4">Volunteer Dashboard</h1>
-                        <p className="text-gray-600 dark:text-gray-300 mb-6">
-                            Please sign in to access your volunteer dashboard.
-                        </p>
-                        <Button onClick={() => router.push("/auth/login")} className="w-full">
-                            Sign In
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
+            <PageWrapper showBackButton>
+                <div className="min-h-[50vh] flex items-center justify-center p-4">
+                    <Card className="w-full max-w-md text-center">
+                        <CardContent className="pt-8 pb-8">
+                            <Shield className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+                            <h1 className="text-2xl font-bold mb-4">Volunteer Dashboard</h1>
+                            <p className="text-gray-600 mb-6">
+                                Please sign in to access your volunteer dashboard.
+                            </p>
+                            <Button onClick={() => router.push("/auth/login")} className="w-full">
+                                Sign In
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </PageWrapper>
         );
     }
 
     // Error state
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
-                <Card className="w-full max-w-md text-center">
-                    <CardContent className="pt-8 pb-8">
-                        <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-                        <h1 className="text-xl font-bold mb-4">Error Loading Dashboard</h1>
-                        <p className="text-gray-600 mb-6">{error}</p>
-                        <Button onClick={fetchData}>Try Again</Button>
-                    </CardContent>
-                </Card>
-            </div>
+            <PageWrapper showBackButton>
+                <div className="min-h-[50vh] flex items-center justify-center p-4">
+                    <Card className="w-full max-w-md text-center">
+                        <CardContent className="pt-8 pb-8">
+                            <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+                            <h1 className="text-xl font-bold mb-4">Error Loading Dashboard</h1>
+                            <p className="text-gray-600 mb-6">{error}</p>
+                            <Button onClick={fetchData}>Try Again</Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </PageWrapper>
         );
     }
 
@@ -244,28 +251,28 @@ export default function VolunteerDashboardPage() {
     const criticalIssues = activeIssues.filter((i) => i.severity === "critical");
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <PageWrapper showBackButton>
             {/* Header */}
-            <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                <div className="max-w-6xl mx-auto px-4 py-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
-                                <Shield className="w-7 h-7" />
+            <header className="bg-[#1a365d] text-white">
+                <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/20 flex items-center justify-center">
+                                <Shield className="w-6 h-6 sm:w-7 sm:h-7" />
                             </div>
                             <div>
-                                <h1 className="text-xl font-bold">{profile.displayName}</h1>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <Badge className={`${rankColors[profile.rank]} text-white`}>
+                                <h1 className="text-lg sm:text-xl font-bold">{profile.displayName}</h1>
+                                <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
+                                    <Badge className={`${rankColors[profile.rank]} text-white text-xs`}>
                                         {profile.rank.toUpperCase()}
                                     </Badge>
                                     {profile.isVerified ? (
-                                        <Badge className="bg-green-500 text-white flex items-center gap-1">
+                                        <Badge className="bg-green-500 text-white flex items-center gap-1 text-xs">
                                             <CheckCircle className="w-3 h-3" /> Verified
                                         </Badge>
                                     ) : (
-                                        <Badge className="bg-yellow-500 text-white">
-                                            Pending Verification
+                                        <Badge className="bg-yellow-500 text-white text-xs">
+                                            Pending
                                         </Badge>
                                     )}
                                 </div>
@@ -520,6 +527,6 @@ export default function VolunteerDashboardPage() {
                     </Card>
                 </div>
             </main>
-        </div>
+        </PageWrapper>
     );
 }

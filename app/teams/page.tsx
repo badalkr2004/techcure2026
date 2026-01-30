@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { PageWrapper } from "@/components/layout";
 
 interface Team {
     id: string;
@@ -81,29 +82,31 @@ export default function TeamsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin" />
-            </div>
+            <PageWrapper>
+                <div className="min-h-[50vh] flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin" />
+                </div>
+            </PageWrapper>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <PageWrapper showBackButton>
             {/* Header */}
-            <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                <div className="max-w-6xl mx-auto px-4 py-8">
-                    <div className="flex items-center justify-between">
+            <header className="bg-[#1a365d] text-white">
+                <div className="max-w-6xl mx-auto px-4 py-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold flex items-center gap-3">
-                                <Users className="w-8 h-8" />
+                            <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-3">
+                                <Users className="w-7 h-7" />
                                 Volunteer Teams
                             </h1>
-                            <p className="text-blue-100 mt-2">
-                                Join or create teams to respond to emergencies together
+                            <p className="text-blue-100 mt-1 text-sm sm:text-base">
+                                Join or create teams to respond to emergencies
                             </p>
                         </div>
                         {session?.user && (
-                            <Button variant="secondary" asChild>
+                            <Button variant="secondary" asChild className="w-full sm:w-auto">
                                 <Link href="/teams/create">
                                     <Plus className="w-4 h-4 mr-2" />
                                     Create Team
@@ -114,7 +117,7 @@ export default function TeamsPage() {
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto px-4 py-8">
+            <main className="max-w-6xl mx-auto px-4 py-6">
                 {/* Search */}
                 <div className="mb-6">
                     <div className="relative max-w-md">
@@ -236,6 +239,6 @@ export default function TeamsPage() {
                     </div>
                 )}
             </main>
-        </div>
+        </PageWrapper>
     );
 }

@@ -18,6 +18,7 @@ import {
     LogOut,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { PageWrapper } from "@/components/layout";
 
 interface TeamMember {
     id: string;
@@ -175,55 +176,49 @@ export default function TeamDetailPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin" />
-            </div>
+            <PageWrapper>
+                <div className="min-h-[50vh] flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin" />
+                </div>
+            </PageWrapper>
         );
     }
 
     if (!team) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
-                <Card className="w-full max-w-md text-center">
-                    <CardContent className="pt-8 pb-8">
-                        <h1 className="text-2xl font-bold mb-4">Team Not Found</h1>
-                        <Button onClick={() => router.push("/teams")}>Browse Teams</Button>
-                    </CardContent>
-                </Card>
-            </div>
+            <PageWrapper showBackButton>
+                <div className="min-h-[50vh] flex items-center justify-center p-4">
+                    <Card className="w-full max-w-md text-center">
+                        <CardContent className="pt-8 pb-8">
+                            <h1 className="text-2xl font-bold mb-4">Team Not Found</h1>
+                            <Button onClick={() => router.push("/teams")}>Browse Teams</Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </PageWrapper>
         );
     }
 
     const isLeader = team.leader?.id === volunteerProfileId;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <PageWrapper showBackButton>
             {/* Header */}
-            <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                <div className="max-w-6xl mx-auto px-4 py-8">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-white hover:bg-white/20 mb-4"
-                        onClick={() => router.push("/teams")}
-                    >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back to Teams
-                    </Button>
-
-                    <div className="flex items-start justify-between">
+            <header className="bg-[#1a365d] text-white">
+                <div className="max-w-6xl mx-auto px-4 py-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
-                                <Users className="w-8 h-8" />
+                            <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
+                                <Users className="w-7 h-7" />
                             </div>
                             <div>
-                                <h1 className="text-3xl font-bold">{team.name}</h1>
-                                <div className="flex items-center gap-2 mt-2">
+                                <h1 className="text-xl sm:text-2xl font-bold">{team.name}</h1>
+                                <div className="flex flex-wrap items-center gap-2 mt-1">
                                     <Badge className={teamTypeColors[team.teamType]}>
                                         {teamTypeLabels[team.teamType] || team.teamType}
                                     </Badge>
-                                    <span className="flex items-center gap-1 text-blue-100">
-                                        <MapPin className="w-4 h-4" />
+                                    <span className="flex items-center gap-1 text-blue-100 text-sm">
+                                        <MapPin className="w-3 h-3" />
                                         {team.district}
                                     </span>
                                 </div>
@@ -238,24 +233,25 @@ export default function TeamDetailPage() {
                                             variant="secondary"
                                             onClick={handleLeave}
                                             disabled={leaving}
+                                            size="sm"
                                         >
                                             {leaving ? (
                                                 <Loader2 className="w-4 h-4 animate-spin" />
                                             ) : (
                                                 <>
                                                     <LogOut className="w-4 h-4 mr-2" />
-                                                    Leave Team
+                                                    Leave
                                                 </>
                                             )}
                                         </Button>
                                     ) : (
-                                        <Button onClick={handleJoin} disabled={joining}>
+                                        <Button onClick={handleJoin} disabled={joining} size="sm">
                                             {joining ? (
                                                 <Loader2 className="w-4 h-4 animate-spin" />
                                             ) : (
                                                 <>
                                                     <UserPlus className="w-4 h-4 mr-2" />
-                                                    Join Team
+                                                    Join
                                                 </>
                                             )}
                                         </Button>
@@ -267,7 +263,7 @@ export default function TeamDetailPage() {
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto px-4 py-8">
+            <main className="max-w-6xl mx-auto px-4 py-6">
                 {team.description && (
                     <Card className="mb-6">
                         <CardContent className="pt-6">
@@ -371,6 +367,6 @@ export default function TeamDetailPage() {
                     </CardContent>
                 </Card>
             </main>
-        </div>
+        </PageWrapper>
     );
 }

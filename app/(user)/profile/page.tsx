@@ -45,6 +45,7 @@ import {
     LogOut,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { PageWrapper } from "@/components/layout";
 
 const BIHAR_DISTRICTS = [
     "Araria", "Arwal", "Aurangabad", "Banka", "Begusarai", "Bhagalpur", "Bhojpur",
@@ -154,67 +155,45 @@ export default function ProfilePage() {
 
     if (sessionLoading || loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <Loader2 className="w-8 h-8 animate-spin text-[#1a365d]" />
-            </div>
+            <PageWrapper>
+                <div className="min-h-[50vh] flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-[#1a365d]" />
+                </div>
+            </PageWrapper>
         );
     }
 
     if (!session?.user) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-                <Card className="w-full max-w-md text-center">
-                    <CardContent className="pt-8 pb-8">
-                        <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <h1 className="text-2xl font-bold mb-4 text-[#1a365d]">Sign In Required</h1>
-                        <p className="text-gray-600 mb-6">Please sign in to access your profile</p>
-                        <Button onClick={() => router.push("/auth/login")} className="bg-[#1a365d]">
-                            Sign In
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
+            <PageWrapper showBackButton>
+                <div className="min-h-[50vh] flex items-center justify-center p-4">
+                    <Card className="w-full max-w-md text-center">
+                        <CardContent className="pt-8 pb-8">
+                            <Shield className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                            <h1 className="text-2xl font-bold mb-4 text-[#1a365d]">Sign In Required</h1>
+                            <p className="text-gray-600 mb-6">Please sign in to access your profile</p>
+                            <Button onClick={() => router.push("/auth/login")} className="bg-[#1a365d]">
+                                Sign In
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </PageWrapper>
         );
     }
 
     const completion = calculateCompletion();
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
-            {/* Top Bar */}
-            <div className="bg-[#1a365d] text-white text-xs hidden sm:block">
-                <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between">
-                    <span>Government of Bihar Initiative</span>
-                    <span className="flex items-center gap-1">
-                        <Phone className="w-3 h-3" />
-                        Emergency: 112
-                    </span>
-                </div>
-            </div>
-
+        <PageWrapper showBackButton>
             {/* Header */}
-            <header className="bg-white border-b-4 border-[#f97316]">
+            <header className="bg-[#1a365d] text-white">
                 <div className="max-w-4xl mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => router.push("/dashboard")}
-                            >
-                                <ArrowLeft className="w-4 h-4 mr-1" />
-                                Back
-                            </Button>
-                            <div className="h-6 w-px bg-gray-300" />
-                            <h1 className="text-lg font-bold text-[#1a365d]">My Profile</h1>
-                        </div>
-                        <Link href="/" className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded bg-[#1a365d] flex items-center justify-center">
-                                <Shield className="w-4 h-4 text-white" />
-                            </div>
-                            <span className="font-bold text-sm text-[#1a365d] hidden sm:inline">Bihar Sahayata</span>
-                        </Link>
-                    </div>
+                    <h1 className="text-xl font-bold flex items-center gap-2">
+                        <User className="w-5 h-5" />
+                        My Profile
+                    </h1>
+                    <p className="text-sm text-blue-100 mt-1">Manage your account settings</p>
                 </div>
             </header>
 
@@ -521,33 +500,6 @@ export default function ProfilePage() {
                     </div>
                 </div>
             </main>
-
-            {/* Mobile Bottom Navigation */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-50">
-                <div className="flex items-center justify-around py-2">
-                    <Link href="/" className="flex flex-col items-center py-2 px-3 text-gray-500">
-                        <Home className="w-5 h-5" />
-                        <span className="text-[10px] mt-0.5">Home</span>
-                    </Link>
-                    <Link href="/disasters" className="flex flex-col items-center py-2 px-3 text-gray-500">
-                        <Bell className="w-5 h-5" />
-                        <span className="text-[10px] mt-0.5">Alerts</span>
-                    </Link>
-                    <Link href="/panic" className="-mt-5">
-                        <div className="w-14 h-14 rounded-full bg-red-600 flex items-center justify-center border-4 border-white shadow-lg">
-                            <AlertTriangle className="w-6 h-6 text-white" />
-                        </div>
-                    </Link>
-                    <Link href="/volunteer/dashboard" className="flex flex-col items-center py-2 px-3 text-gray-500">
-                        <HandHeart className="w-5 h-5" />
-                        <span className="text-[10px] mt-0.5">Volunteer</span>
-                    </Link>
-                    <Link href="/profile" className="flex flex-col items-center py-2 px-3 text-[#f97316]">
-                        <User className="w-5 h-5" />
-                        <span className="text-[10px] mt-0.5 font-medium">Profile</span>
-                    </Link>
-                </div>
-            </nav>
-        </div>
+        </PageWrapper>
     );
 }

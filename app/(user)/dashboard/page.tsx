@@ -44,8 +44,10 @@ import {
     FileText,
     Navigation,
     X,
+    LayoutDashboard,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { PageWrapper } from "@/components/layout";
 
 interface UserProfile {
     hasProfile: boolean;
@@ -319,26 +321,30 @@ export default function UserDashboard() {
 
     if (sessionLoading || loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <Loader2 className="w-8 h-8 animate-spin text-[#1a365d]" />
-            </div>
+            <PageWrapper>
+                <div className="min-h-[50vh] flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-[#1a365d]" />
+                </div>
+            </PageWrapper>
         );
     }
 
     if (!session?.user) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-                <Card className="w-full max-w-md text-center">
-                    <CardContent className="pt-8 pb-8">
-                        <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <h1 className="text-2xl font-bold mb-4 text-[#1a365d]">Dashboard</h1>
-                        <p className="text-gray-600 mb-6">Please sign in to view your dashboard</p>
-                        <Button onClick={() => router.push("/auth/login")} className="w-full bg-[#1a365d]">
-                            Sign In
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
+            <PageWrapper showBackButton>
+                <div className="min-h-[50vh] flex items-center justify-center p-4">
+                    <Card className="w-full max-w-md text-center">
+                        <CardContent className="pt-8 pb-8">
+                            <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                            <h1 className="text-2xl font-bold mb-4 text-[#1a365d]">Dashboard</h1>
+                            <p className="text-gray-600 mb-6">Please sign in to view your dashboard</p>
+                            <Button onClick={() => router.push("/auth/login")} className="w-full bg-[#1a365d]">
+                                Sign In
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </PageWrapper>
         );
     }
 
@@ -347,31 +353,20 @@ export default function UserDashboard() {
     ).length;
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
-            {/* Top Bar */}
-            <div className="bg-[#1a365d] text-white text-xs hidden sm:block">
-                <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
-                    <span>Government of Bihar Initiative</span>
-                    <span className="flex items-center gap-1">
-                        <Phone className="w-3 h-3" />
-                        Emergency: 112
-                    </span>
-                </div>
-            </div>
-
+        <PageWrapper showBackButton>
             {/* Header */}
-            <header className="bg-white border-b-4 border-[#f97316]">
+            <header className="bg-[#1a365d] text-white">
                 <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3 sm:gap-4">
-                            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded bg-[#1a365d] text-white flex items-center justify-center flex-shrink-0 font-bold text-xl">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-white/20 text-white flex items-center justify-center flex-shrink-0 font-bold text-xl">
                                 {profile?.user.name?.[0]?.toUpperCase() || "U"}
                             </div>
                             <div className="min-w-0">
-                                <h1 className="text-xl sm:text-2xl font-bold text-[#1a365d] truncate">
+                                <h1 className="text-lg sm:text-xl font-bold truncate">
                                     {profile?.user.name || "User"}
                                 </h1>
-                                <p className="text-gray-600 text-sm truncate">{profile?.user.email}</p>
+                                <p className="text-blue-100 text-sm truncate">{profile?.user.email}</p>
                             </div>
                         </div>
                         <Button
@@ -966,6 +961,6 @@ export default function UserDashboard() {
                     )}
                 </DialogContent>
             </Dialog>
-        </div>
+        </PageWrapper>
     );
 }

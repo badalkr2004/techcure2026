@@ -28,6 +28,7 @@ import {
     AlertTriangle,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { PageWrapper } from "@/components/layout";
 
 const specializations = [
     { id: "first_aid", label: "First Aid", icon: Heart },
@@ -196,64 +197,71 @@ export default function VolunteerOnboardPage() {
     // Loading state
     if (sessionLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin" />
-            </div>
+            <PageWrapper>
+                <div className="min-h-[50vh] flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin" />
+                </div>
+            </PageWrapper>
         );
     }
 
     // Not logged in
     if (!session?.user) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
-                <Card className="w-full max-w-md text-center">
-                    <CardContent className="pt-8 pb-8">
-                        <Shield className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-                        <h1 className="text-2xl font-bold mb-4">Become a Volunteer</h1>
-                        <p className="text-gray-600 dark:text-gray-300 mb-6">
-                            Please sign in to register as a volunteer with Bihar Sahayata.
-                        </p>
-                        <Button onClick={() => router.push("/auth/login")} className="w-full">
-                            Sign In to Continue
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
+            <PageWrapper showBackButton>
+                <div className="min-h-[50vh] flex items-center justify-center p-4">
+                    <Card className="w-full max-w-md text-center">
+                        <CardContent className="pt-8 pb-8">
+                            <Shield className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+                            <h1 className="text-2xl font-bold mb-4">Become a Volunteer</h1>
+                            <p className="text-gray-600 mb-6">
+                                Please sign in to register as a volunteer.
+                            </p>
+                            <Button onClick={() => router.push("/auth/login")} className="w-full">
+                                Sign In to Continue
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </PageWrapper>
         );
     }
 
     // Success state
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
-                <Card className="w-full max-w-md text-center border-green-200">
-                    <CardContent className="pt-8 pb-8">
-                        <CheckCircle className="w-20 h-20 text-green-600 mx-auto mb-4 animate-pulse" />
-                        <h1 className="text-2xl font-bold text-green-700 mb-4">
-                            Registration Successful!
-                        </h1>
-                        <p className="text-gray-600 dark:text-gray-300">
-                            Your volunteer profile has been created. Redirecting to dashboard...
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
+            <PageWrapper>
+                <div className="min-h-[50vh] flex items-center justify-center p-4 bg-green-50">
+                    <Card className="w-full max-w-md text-center border-green-200">
+                        <CardContent className="pt-8 pb-8">
+                            <CheckCircle className="w-20 h-20 text-green-600 mx-auto mb-4 animate-pulse" />
+                            <h1 className="text-2xl font-bold text-green-700 mb-4">
+                                Registration Successful!
+                            </h1>
+                            <p className="text-gray-600">
+                                Your volunteer profile has been created. Redirecting to dashboard...
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+            </PageWrapper>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-gray-950 dark:to-gray-900 py-8 px-4">
-            <div className="max-w-2xl mx-auto">
-                {/* Header */}
-                <div className="text-center mb-8">
-                    <Shield className="w-16 h-16 text-blue-600 mx-auto mb-4" />
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                        Become a Volunteer
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-300">
-                        Join Bihar Sahayata and help your community in times of need
+        <PageWrapper showBackButton>
+            {/* Header */}
+            <header className="bg-[#1a365d] text-white">
+                <div className="max-w-2xl mx-auto px-4 py-6 text-center">
+                    <Shield className="w-12 h-12 mx-auto mb-2" />
+                    <h1 className="text-2xl font-bold mb-1">Become a Volunteer</h1>
+                    <p className="text-blue-100 text-sm">
+                        Help your community in times of need
                     </p>
                 </div>
+            </header>
+
+            <div className="max-w-2xl mx-auto px-4 py-6">
 
                 <form onSubmit={handleSubmit}>
                     {/* Basic Info */}
@@ -480,6 +488,6 @@ export default function VolunteerOnboardPage() {
                     </Button>
                 </form>
             </div>
-        </div>
+        </PageWrapper>
     );
 }
