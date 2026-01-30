@@ -61,7 +61,7 @@ import { authClient } from "@/lib/auth-client";
 const translations = {
     en: {
         appName: "Bihar Sahayata",
-        govtOf: "Government of Bihar Initiative",
+        govtOf: "Initiative by Youth of Bihar",
         tagline: "Disaster Management & Volunteer Services Portal",
         switchLang: "हिंदी",
         heroTitle: "Bihar Sahayata Portal",
