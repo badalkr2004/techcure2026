@@ -18,6 +18,8 @@ import {
 import Link from "next/link";
 import { MobileBottomNav } from "@/components/layout";
 
+/* ---------------- TYPES ---------------- */
+
 interface LocationState {
     latitude: number | null;
     longitude: number | null;
@@ -33,6 +35,8 @@ interface AlertResponse {
     nearbyVolunteersCount?: number;
     error?: string;
 }
+
+/* ---------------- PAGE ---------------- */
 
 export default function PanicPage() {
     const [location, setLocation] = useState<LocationState>({
@@ -51,57 +55,50 @@ export default function PanicPage() {
     const [countdown, setCountdown] = useState<number | null>(null);
     const [isConfirming, setIsConfirming] = useState(false);
 
-    // Get user's location
+    /* ---------------- LOCATION ---------------- */
+
     useEffect(() => {
         if (!navigator.geolocation) {
-            setLocation((prev) => ({
-                ...prev,
-                error: "Geolocation is not supported by your browser",
+            setLocation({
+                latitude: null,
+                longitude: null,
+                accuracy: null,
+                error: "Geolocation not supported",
                 loading: false,
-            }));
+            });
             return;
         }
 
         navigator.geolocation.getCurrentPosition(
-            (position) => {
+            (pos) =>
                 setLocation({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    accuracy: position.coords.accuracy,
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude,
+                    accuracy: pos.coords.accuracy,
                     error: null,
                     loading: false,
-                });
-            },
-            (error) => {
-                setLocation((prev) => ({
-                    ...prev,
-                    error: `Location error: ${error.message}`,
+                }),
+            (err) =>
+                setLocation((p) => ({
+                    ...p,
+                    error: err.message,
                     loading: false,
-                }));
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 60000,
-            }
+                })),
+            { enableHighAccuracy: true, timeout: 10000 }
         );
     }, []);
 
-    // Countdown timer for confirmation
+    /* ---------------- COUNTDOWN ---------------- */
+
     useEffect(() => {
         if (countdown === null) return;
+        if (countdown === 0) submitPanicAlert();
 
-        if (countdown === 0) {
-            submitPanicAlert();
-            return;
-        }
-
-        const timer = setTimeout(() => {
-            setCountdown(countdown - 1);
-        }, 1000);
-
-        return () => clearTimeout(timer);
+        const t = setTimeout(() => setCountdown((c) => (c ? c - 1 : c)), 1000);
+        return () => clearTimeout(t);
     }, [countdown]);
+
+    /* ---------------- SUBMIT ---------------- */
 
     const submitPanicAlert = useCallback(async () => {
         setIsSubmitting(true);
@@ -109,11 +106,9 @@ export default function PanicPage() {
         setCountdown(null);
 
         try {
-            const response = await fetch("/api/panic", {
+            const res = await fetch("/api/panic", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     victimPhone: phone,
                     victimName: name || undefined,
@@ -123,12 +118,11 @@ export default function PanicPage() {
                 }),
             });
 
-            const data = await response.json();
-            setAlertResponse(data);
+            setAlertResponse(await res.json());
         } catch {
             setAlertResponse({
                 success: false,
-                error: "Failed to send alert. Please try again or call emergency services.",
+                error: "Failed to send alert. Please call emergency services.",
             });
         } finally {
             setIsSubmitting(false);
@@ -136,280 +130,118 @@ export default function PanicPage() {
     }, [phone, name, location, description]);
 
     const handlePanicClick = () => {
-        if (!phone) {
-            alert("Please enter your phone number first");
-            return;
-        }
-
-        if (!location.latitude || !location.longitude) {
-            alert("Unable to get your location. Please enable location services.");
-            return;
-        }
-
-        // Start confirmation countdown
+        if (!phone) return alert("Please enter your phone number");
+        if (!location.latitude) return alert("Location not available");
         setIsConfirming(true);
         setCountdown(5);
     };
 
-    const cancelAlert = () => {
-        setIsConfirming(false);
-        setCountdown(null);
-    };
+    /* ---------------- SUCCESS ---------------- */
 
-    // Success state
     if (alertResponse?.success) {
         return (
-            <div className="min-h-screen bg-green-50 flex flex-col pb-20 md:pb-0">
-                <header className="bg-green-600 text-white py-4 px-4 shadow-lg sticky top-0 z-50">
-                    <div className="max-w-lg mx-auto flex items-center gap-3">
-                        <Link href="/" className="p-1 -ml-1 rounded hover:bg-green-700 transition-colors">
-                            <ChevronLeft className="w-6 h-6" />
-                        </Link>
-                        <div>
-                            <h1 className="font-bold text-xl">Alert Sent</h1>
-                            <p className="text-green-100 text-sm">Help is on the way</p>
-                        </div>
-                    </div>
-                </header>
-                <div className="flex-1 flex items-center justify-center p-4">
-                    <Card className="w-full max-w-md text-center border-green-200">
-                        <CardContent className="pt-8 pb-8">
-                            <div className="mb-6">
-                                <CheckCircle className="w-20 h-20 text-green-600 mx-auto animate-pulse" />
-                            </div>
-                            <h1 className="text-2xl font-bold text-green-700 mb-4">
-                                Alert Sent Successfully!
-                            </h1>
-                            <p className="text-gray-600 mb-4">
-                                Your emergency alert has been sent. Help is on the way.
-                            </p>
-                            <div className="bg-green-100 rounded-lg p-4 mb-6">
-                                <p className="text-sm text-green-800">
-                                    <strong>{alertResponse.nearbyVolunteersCount}</strong> volunteers
-                                    have been notified in your area.
-                                </p>
-                            </div>
-                            <p className="text-sm text-gray-500">
-                                Alert ID: <code className="font-mono">{alertResponse.alertId}</code>
-                            </p>
-                            <Button asChild className="mt-4">
-                                <Link href="/">Return Home</Link>
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </div>
+            <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex flex-col">
+                <SuccessCard alert={alertResponse} />
                 <MobileBottomNav />
             </div>
         );
     }
 
-    // Error state
+    /* ---------------- ERROR ---------------- */
+
     if (alertResponse?.error) {
         return (
-            <div className="min-h-screen bg-red-50 flex flex-col pb-20 md:pb-0">
-                <header className="bg-red-600 text-white py-4 px-4 shadow-lg sticky top-0 z-50">
-                    <div className="max-w-lg mx-auto flex items-center gap-3">
-                        <Link href="/" className="p-1 -ml-1 rounded hover:bg-red-700 transition-colors">
-                            <ChevronLeft className="w-6 h-6" />
-                        </Link>
-                        <div>
-                            <h1 className="font-bold text-xl">Error</h1>
-                            <p className="text-red-100 text-sm">Failed to send alert</p>
-                        </div>
-                    </div>
-                </header>
-                <div className="flex-1 flex items-center justify-center p-4">
-                    <Card className="w-full max-w-md text-center border-red-200">
-                        <CardContent className="pt-8 pb-8">
-                            <div className="mb-6">
-                                <XCircle className="w-20 h-20 text-red-600 mx-auto" />
-                            </div>
-                            <h1 className="text-2xl font-bold text-red-700 mb-4">
-                                Failed to Send Alert
-                            </h1>
-                            <p className="text-gray-600 mb-6">
-                                {alertResponse.error}
-                            </p>
-                            <div className="space-y-3">
-                                <Button
-                                    onClick={() => setAlertResponse(null)}
-                                    className="w-full bg-red-600 hover:bg-red-700"
-                                >
-                                    Try Again
-                                </Button>
-                                <p className="text-sm text-gray-500">
-                                    Emergency: <strong>112</strong> | Police: <strong>100</strong> |
-                                    Ambulance: <strong>108</strong>
-                                </p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+            <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex flex-col">
+                <ErrorCard error={alertResponse.error} onRetry={() => setAlertResponse(null)} />
                 <MobileBottomNav />
             </div>
         );
     }
 
+    /* ---------------- MAIN ---------------- */
+
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col pb-20 md:pb-0">
-            {/* Header */}
-            <header className="bg-red-600 text-white py-4 px-4 shadow-lg sticky top-0 z-50">
-                <div className="max-w-lg mx-auto flex items-center gap-3">
-                    <Link href="/" className="p-1 -ml-1 rounded hover:bg-red-700 transition-colors">
-                        <ChevronLeft className="w-6 h-6" />
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 flex flex-col pb-24">
+
+            {/* HEADER */}
+            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
+                <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+                    <Link href="/" className="p-1 rounded hover:bg-gray-100">
+                        <ChevronLeft />
                     </Link>
-                    <AlertTriangle className="w-7 h-7" />
+                    <AlertTriangle className="text-red-600" />
                     <div>
-                        <h1 className="font-bold text-xl">Emergency SOS</h1>
-                        <p className="text-red-100 text-sm">Panic Alert System</p>
+                        <h1 className="font-bold">Emergency SOS</h1>
+                        <p className="text-xs text-gray-500">Immediate assistance</p>
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-lg mx-auto p-4 pt-8">
-                {/* Location Status */}
-                <Card className="mb-6 border-blue-200 dark:border-blue-800">
-                    <CardContent className="pt-4 pb-4">
-                        <div className="flex items-center gap-3">
-                            {location.loading ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-                                    <span className="text-sm text-gray-600 dark:text-gray-300">
-                                        Getting your location...
-                                    </span>
-                                </>
-                            ) : location.error ? (
-                                <>
-                                    <XCircle className="w-5 h-5 text-red-500" />
-                                    <span className="text-sm text-red-600">{location.error}</span>
-                                </>
-                            ) : (
-                                <>
-                                    <MapPin className="w-5 h-5 text-green-500" />
-                                    <span className="text-sm text-gray-600 dark:text-gray-300">
-                                        Location captured (±{Math.round(location.accuracy || 0)}m)
-                                    </span>
-                                </>
-                            )}
-                        </div>
+            <main className="max-w-lg mx-auto p-4 space-y-6">
+
+                {/* LOCATION */}
+                <Card className="rounded-2xl">
+                    <CardContent className="flex items-center gap-3 p-4">
+                        {location.loading ? (
+                            <Loader2 className="animate-spin text-blue-600" />
+                        ) : location.error ? (
+                            <XCircle className="text-red-600" />
+                        ) : (
+                            <MapPin className="text-green-600" />
+                        )}
+                        <p className="text-sm text-gray-600">
+                            {location.loading
+                                ? "Detecting location…"
+                                : location.error
+                                    ? location.error
+                                    : `Location locked (±${Math.round(location.accuracy || 0)}m)`}
+                        </p>
                     </CardContent>
                 </Card>
 
-                {/* Phone Input */}
-                <Card className="mb-6">
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                            <Phone className="w-5 h-5" />
-                            Contact Information
-                        </CardTitle>
+                {/* CONTACT */}
+                <Card className="rounded-2xl">
+                    <CardHeader>
+                        <CardTitle>Contact Details</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div>
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                                Phone Number *
-                            </label>
-                            <Input
-                                type="tel"
-                                placeholder="Enter your phone number"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
-                                className="text-lg"
-                                disabled={isConfirming || isSubmitting}
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                                Name (Optional)
-                            </label>
-                            <Input
-                                type="text"
-                                placeholder="Your name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                disabled={isConfirming || isSubmitting}
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                                What&apos;s happening? (Optional)
-                            </label>
-                            <Textarea
-                                placeholder="Briefly describe your emergency..."
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                rows={2}
-                                disabled={isConfirming || isSubmitting}
-                            />
-                        </div>
+                        <Input
+                            placeholder="Phone number *"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            disabled={isConfirming}
+                        />
+                        <Input
+                            placeholder="Name (optional)"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            disabled={isConfirming}
+                        />
+                        <Textarea
+                            placeholder="Describe emergency (optional)"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            rows={2}
+                            disabled={isConfirming}
+                        />
                     </CardContent>
                 </Card>
 
-                {/* Panic Button */}
+                {/* PANIC BUTTON */}
                 {isConfirming ? (
-                    <div className="space-y-4">
-                        <Button
-                            className="w-full h-32 text-2xl font-bold bg-gradient-to-b from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 shadow-2xl animate-pulse"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <Loader2 className="w-10 h-10 animate-spin" />
-                            ) : (
-                                <span className="flex flex-col items-center gap-2">
-                                    <AlertTriangle className="w-10 h-10" />
-                                    Sending in {countdown}...
-                                </span>
-                            )}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="w-full"
-                            onClick={cancelAlert}
-                            disabled={isSubmitting}
-                        >
+                    <div className="w-full flex items-center justify-between">
+                        <BuzzerButton label={`Sending in ${countdown}s`} loading />
+                        <Button variant="outline" className="w-32 px-20 py-7" onClick={() => setIsConfirming(false)}>
                             Cancel
                         </Button>
                     </div>
                 ) : (
-                    <Button
-                        onClick={handlePanicClick}
-                        disabled={location.loading || !location.latitude || isSubmitting}
-                        className="w-full h-32 text-2xl font-bold bg-gradient-to-b from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 shadow-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                        <span className="flex flex-col items-center gap-2">
-                            <AlertTriangle className="w-12 h-12" />
-                            PANIC ALERT
-                        </span>
-                    </Button>
+                    <BuzzerButton label="PANIC ALERT" onClick={handlePanicClick} />
                 )}
 
-                {/* Emergency Numbers */}
-                <div className="mt-8 text-center">
-                    <p className="text-sm text-gray-500 mb-3">
-                        You can also call emergency services directly:
-                    </p>
-                    <div className="flex justify-center gap-4">
-                        <a
-                            href="tel:112"
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-                        >
-                            <Phone className="w-4 h-4" />
-                            <span className="font-bold">112</span>
-                        </a>
-                        <a
-                            href="tel:100"
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-                        >
-                            <Phone className="w-4 h-4" />
-                            <span className="font-bold">100</span>
-                        </a>
-                        <a
-                            href="tel:108"
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-                        >
-                            <Navigation className="w-4 h-4" />
-                            <span className="font-bold">108</span>
-                        </a>
-                    </div>
+                {/* NUMBERS */}
+                <div className="text-center text-sm text-gray-500 pt-4">
+                    Emergency Numbers: 112 • 100 • 108
                 </div>
             </main>
 
@@ -417,3 +249,58 @@ export default function PanicPage() {
         </div>
     );
 }
+
+/* ---------------- COMPONENTS ---------------- */
+
+const BuzzerButton = ({
+    label,
+    onClick,
+    loading,
+}: {
+    label: string;
+    onClick?: () => void;
+    loading?: boolean;
+}) => (
+    <Button
+        onClick={onClick}
+        disabled={loading}
+        className="w-32 px-20 py-7"
+    >
+        {loading ? (
+            <Loader2 className="w-10 h-10 animate-spin text-white" />
+        ) : (
+            <span className="flex justify-between items-center gap-2 text-white font-bold text-sm">
+                <AlertTriangle className="w-10 h-10" />
+                {label}
+            </span>
+        )}
+
+    </Button >
+);
+
+const SuccessCard = ({ alert }: any) => (
+    <div className="flex-1 flex items-center justify-center p-4">
+        <Card className="rounded-2xl text-center p-6">
+            <CheckCircle className="w-20 h-20 mx-auto text-green-600 animate-pulse mb-4" />
+            <h2 className="text-xl font-bold mb-2">Help is on the way</h2>
+            <p className="text-gray-600 mb-4">
+                {alert.nearbyVolunteersCount} volunteers notified
+            </p>
+            <Link href="/">
+                <Button>Return Home</Button>
+            </Link>
+        </Card>
+    </div>
+);
+
+const ErrorCard = ({ error, onRetry }: any) => (
+    <div className="flex-1 flex items-center justify-center p-4">
+        <Card className="rounded-2xl text-center p-6">
+            <XCircle className="w-20 h-20 mx-auto text-red-600 mb-4" />
+            <p className="text-gray-600 mb-4">{error}</p>
+            <Button onClick={onRetry} className="bg-red-600 hover:bg-red-700">
+                Try Again
+            </Button>
+        </Card>
+    </div>
+);

@@ -472,8 +472,8 @@ export default function IssueDetailPage() {
                                         <div key={step} className="flex flex-col items-center flex-1">
                                             <div
                                                 className={`w-8 h-8 rounded-full flex items-center justify-center ${isCompleted
-                                                        ? "bg-blue-600 text-white"
-                                                        : "bg-gray-200 text-gray-400"
+                                                    ? "bg-blue-600 text-white"
+                                                    : "bg-gray-200 text-gray-400"
                                                     } ${isCurrent ? "ring-4 ring-blue-200" : ""}`}
                                             >
                                                 {isCompleted ? (

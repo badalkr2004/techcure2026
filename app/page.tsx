@@ -245,7 +245,7 @@ export default function LandingPage() {
                 setCheckingVolunteer(false);
                 return;
             }
-            
+
             setCheckingVolunteer(true);
             try {
                 const res = await fetch("/api/volunteer/profile");
@@ -520,7 +520,7 @@ export default function LandingPage() {
                                     <hr className="my-2" />
                                 </>
                             )}
-                            
+
                             <Link
                                 href="/"
                                 className="flex items-center gap-3 px-4 py-3 rounded bg-gray-100 font-medium text-[#1a365d]"
@@ -565,7 +565,7 @@ export default function LandingPage() {
                                 </Link>
                             )}
                             <hr className="my-2" />
-                            
+
                             {session?.user ? (
                                 <button
                                     onClick={() => {
@@ -648,7 +648,7 @@ export default function LandingPage() {
                                     <Button
                                         size="lg"
                                         variant="outline"
-                                        className="border-white text-white hover:bg-white hover:text-[#1a365d]"
+                                        className="border-white text-black hover:bg-white hover:text-[#1a365d]"
                                         asChild
                                     >
                                         <Link href="/panic">
@@ -661,26 +661,36 @@ export default function LandingPage() {
 
                             {/* Emergency Helpline Card */}
                             <div className="flex justify-center lg:justify-end">
-                                <Card className="bg-white text-gray-900 w-full max-w-sm">
-                                    <CardContent className="p-6">
-                                        <div className="text-center mb-4">
-                                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-3">
-                                                <Phone className="w-8 h-8 text-red-600" />
-                                            </div>
-                                            <h3 className="font-bold text-lg text-red-600">
-                                                {t.emergencyHelpline}
-                                            </h3>
-                                            <p className="text-xs text-gray-500">{t.tollFree}</p>
-                                        </div>
-                                        <div className="text-center mb-4">
-                                            <span className="text-4xl font-bold text-[#1a365d]">112</span>
-                                        </div>
-                                        <Link href="/panic">
+                                <Card className="bg-white text-gray-900 w-full max-w-sm ">
+                                    <CardContent className="p-6 flex items-center justify-evenly  ">
+
+                                        {/* <Link href="/panic">
                                             <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
                                                 <AlertTriangle className="w-4 h-4 mr-2" />
                                                 {t.reportEmergency}
                                             </Button>
+                                        </Link> */}
+
+                                        <Link href="/panic" className=" group ">
+                                            <div className="relative size-32 rounded-full bg-gradient-to-b from-red-500 to-red-700 
+                                                border-[5px] border-red-300 shadow-[0_12px_30px_rgba(255,0,0,0.6)]
+                                                flex items-center justify-center
+                                                transition-all duration-200
+                                                group-active:scale-95 animate-pulse">
+
+                                                {/* Inner pressed surface */}
+                                                <div className="absolute inset-2 rounded-full bg-red-600 shadow-inner flex items-center justify-center">
+                                                    <AlertTriangle className="w-7 h-7 text-white" />
+                                                </div>
+                                            </div>
+
+
                                         </Link>
+                                        <div>
+                                            <span className="font-bold text-red-600 text-5xl">
+                                                SOS
+                                            </span>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -816,14 +826,13 @@ export default function LandingPage() {
                                         <Card key={notice.id} className="border hover:shadow-md transition-shadow cursor-pointer">
                                             <CardContent className="p-4">
                                                 <div className="flex items-start gap-3">
-                                                    <div className={`w-8 h-8 rounded flex items-center justify-center flex-shrink-0 ${
-                                                        notice.type === 'alert' ? 'bg-red-100 text-red-600' :
+                                                    <div className={`w-8 h-8 rounded flex items-center justify-center flex-shrink-0 ${notice.type === 'alert' ? 'bg-red-100 text-red-600' :
                                                         notice.type === 'notice' ? 'bg-blue-100 text-blue-600' :
-                                                        'bg-green-100 text-green-600'
-                                                    }`}>
+                                                            'bg-green-100 text-green-600'
+                                                        }`}>
                                                         {notice.type === 'alert' ? <AlertTriangle className="w-4 h-4" /> :
-                                                         notice.type === 'notice' ? <Bell className="w-4 h-4" /> :
-                                                         <FileText className="w-4 h-4" />}
+                                                            notice.type === 'notice' ? <Bell className="w-4 h-4" /> :
+                                                                <FileText className="w-4 h-4" />}
                                                     </div>
                                                     <div className="min-w-0">
                                                         <p className="font-medium text-sm text-gray-900 line-clamp-2">
@@ -908,7 +917,7 @@ export default function LandingPage() {
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="border-white text-white hover:bg-white hover:text-[#1a365d]"
+                                className="border-white text-black hover:bg-white hover:text-[#1a365d]"
                                 onClick={() => setShowDonateDialog(true)}
                             >
                                 <Heart className="w-4 h-4 mr-2" />
@@ -945,7 +954,7 @@ export default function LandingPage() {
                                         <li><Link href="/volunteer/onboard" className="hover:text-white">Become Volunteer</Link></li>
                                     )}
                                     <li><Link href="/teams" className="hover:text-white">Relief Teams</Link></li>
-                                    <li><Link href="/panic" className="hover:text-white">Report Emergency</Link></li>
+                                    <li ><Link href="/panic" className="hover:text-white">Report Emergency</Link></li>
                                 </ul>
                             </div>
 

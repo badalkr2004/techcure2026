@@ -603,7 +603,7 @@ function AdminCampaignsContent() {
                                                     <SelectValue placeholder="Select a disaster" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="">None</SelectItem>
+                                                    <SelectItem value="None">None</SelectItem>
                                                     {disasters.map((d) => (
                                                         <SelectItem key={d.id} value={d.id}>
                                                             {d.title}
