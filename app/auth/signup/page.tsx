@@ -1,5 +1,4 @@
-import { SignupForm } from "@/components/auth/signup-from";
-import { authClient } from "@/lib/auth-client"; //import the auth client
+import { SignupForm } from "@/components/auth/signup-form";
 
 export default function Page() {
   return (
