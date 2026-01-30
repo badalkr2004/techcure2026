@@ -1033,9 +1033,9 @@ export default function LandingPage() {
 
             {/* Donation Dialog */}
             <Dialog open={showDonateDialog} onOpenChange={setShowDonateDialog}>
-                <DialogContent className="max-w-md mx-4">
+                <DialogContent className="max-w-md w-[calc(100%-2rem)] mx-auto max-h-[85vh] flex flex-col p-0 gap-0">
                     {donationSuccess ? (
-                        <div className="text-center py-8">
+                        <div className="text-center py-8 px-6">
                             <div className="w-16 h-16 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-4">
                                 <CheckCircle className="w-8 h-8 text-green-600" />
                             </div>
@@ -1047,88 +1047,88 @@ export default function LandingPage() {
                         </div>
                     ) : (
                         <>
-                            <DialogHeader>
-                                <DialogTitle className="flex items-center gap-2">
-                                    <Heart className="w-5 h-5 text-red-600" />
+                            <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-2 flex-shrink-0">
+                                <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+                                    <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                                     {t.donateTitle}
                                 </DialogTitle>
-                                <DialogDescription>{t.donateSubtitle}</DialogDescription>
+                                <DialogDescription className="text-xs sm:text-sm">{t.donateSubtitle}</DialogDescription>
                             </DialogHeader>
 
-                            <div className="space-y-4 py-4">
-                                <div>
-                                    <Label className="text-sm font-medium">{t.donateAmount}</Label>
-                                    <div className="grid grid-cols-3 gap-2 mt-2">
-                                        {donationAmounts.map((amt) => (
-                                            <Button
-                                                key={amt}
-                                                type="button"
-                                                variant={donationAmount === amt && !customAmount ? "default" : "outline"}
-                                                className={donationAmount === amt && !customAmount ? "bg-[#1a365d]" : ""}
-                                                onClick={() => { setDonationAmount(amt); setCustomAmount(""); }}
-                                            >
-                                                ₹{amt.toLocaleString()}
-                                            </Button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <Label className="text-sm font-medium">{t.donateCustom}</Label>
-                                    <div className="relative mt-1">
-                                        <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                        <Input
-                                            type="number"
-                                            value={customAmount}
-                                            onChange={(e) => setCustomAmount(e.target.value)}
-                                            placeholder="Enter amount"
-                                            className="pl-9"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        id="anonymous"
-                                        checked={isAnonymous}
-                                        onChange={(e) => setIsAnonymous(e.target.checked)}
-                                        className="rounded"
-                                    />
-                                    <Label htmlFor="anonymous" className="cursor-pointer text-sm">{t.donateAnonymous}</Label>
-                                </div>
-
-                                {!isAnonymous && (
+                            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-2 min-h-0">
+                                <div className="space-y-3 sm:space-y-4">
                                     <div>
-                                        <Label className="text-sm font-medium">{t.donateName}</Label>
-                                        <Input value={donorName} onChange={(e) => setDonorName(e.target.value)} className="mt-1" />
+                                        <Label className="text-xs sm:text-sm font-medium">{t.donateAmount}</Label>
+                                        <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mt-1.5 sm:mt-2">
+                                            {donationAmounts.map((amt) => (
+                                                <Button
+                                                    key={amt}
+                                                    type="button"
+                                                    size="sm"
+                                                    variant={donationAmount === amt && !customAmount ? "default" : "outline"}
+                                                    className={`text-xs sm:text-sm h-8 sm:h-9 ${donationAmount === amt && !customAmount ? "bg-[#1a365d]" : ""}`}
+                                                    onClick={() => { setDonationAmount(amt); setCustomAmount(""); }}
+                                                >
+                                                    ₹{amt.toLocaleString()}
+                                                </Button>
+                                            ))}
+                                        </div>
                                     </div>
-                                )}
 
-                                <div>
-                                    <Label className="text-sm font-medium">{t.donateEmail}</Label>
-                                    <Input type="email" value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} className="mt-1" />
-                                </div>
+                                    <div>
+                                        <Label className="text-xs sm:text-sm font-medium">{t.donateCustom}</Label>
+                                        <div className="relative mt-1">
+                                            <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
+                                            <Input
+                                                type="number"
+                                                value={customAmount}
+                                                onChange={(e) => setCustomAmount(e.target.value)}
+                                                placeholder="Enter amount"
+                                                className="pl-8 sm:pl-9 h-9 sm:h-10 text-sm"
+                                            />
+                                        </div>
+                                    </div>
 
-                                <div>
-                                    <Label className="text-sm font-medium">{t.donatePhone}</Label>
-                                    <Input type="tel" value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} className="mt-1" />
-                                </div>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            id="anonymous"
+                                            checked={isAnonymous}
+                                            onChange={(e) => setIsAnonymous(e.target.checked)}
+                                            className="rounded w-3.5 h-3.5 sm:w-4 sm:h-4"
+                                        />
+                                        <Label htmlFor="anonymous" className="cursor-pointer text-xs sm:text-sm">{t.donateAnonymous}</Label>
+                                    </div>
 
-                                <div>
-                                    <Label className="text-sm font-medium">{t.donateMessage}</Label>
-                                    <Textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={2} className="mt-1" />
+                                    {!isAnonymous && (
+                                        <div>
+                                            <Label className="text-xs sm:text-sm font-medium">{t.donateName}</Label>
+                                            <Input value={donorName} onChange={(e) => setDonorName(e.target.value)} className="mt-1 h-9 sm:h-10 text-sm" />
+                                        </div>
+                                    )}
+
+                                    <div>
+                                        <Label className="text-xs sm:text-sm font-medium">{t.donateEmail}</Label>
+                                        <Input type="email" value={donorEmail} onChange={(e) => setDonorEmail(e.target.value)} className="mt-1 h-9 sm:h-10 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <Label className="text-xs sm:text-sm font-medium">{t.donatePhone}</Label>
+                                        <Input type="tel" value={donorPhone} onChange={(e) => setDonorPhone(e.target.value)} className="mt-1 h-9 sm:h-10 text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <Label className="text-xs sm:text-sm font-medium">{t.donateMessage}</Label>
+                                        <Textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={2} className="mt-1 text-sm resize-none" />
+                                    </div>
                                 </div>
                             </div>
 
-                            <DialogFooter className="gap-2">
-                                <Button variant="outline" onClick={closeDonateDialog}>
-                                    {lang === "en" ? "Cancel" : "रद्द करें"}
-                                </Button>
+                            <DialogFooter className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t bg-gray-50/80 gap-2 flex-col sm:flex-row">
                                 <Button
                                     onClick={handleDonate}
                                     disabled={donating}
-                                    className="bg-[#1a365d] hover:bg-[#1e4070]"
+                                    className="bg-[#1a365d] hover:bg-[#1e4070] w-full sm:w-auto order-1 sm:order-2 h-10"
                                 >
                                     {donating ? (
                                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -1136,6 +1136,9 @@ export default function LandingPage() {
                                         <Heart className="w-4 h-4 mr-2" />
                                     )}
                                     {t.donateButton} ₹{(customAmount ? parseInt(customAmount) || 0 : donationAmount).toLocaleString()}
+                                </Button>
+                                <Button variant="outline" onClick={closeDonateDialog} className="w-full sm:w-auto order-2 sm:order-1 h-10">
+                                    {lang === "en" ? "Cancel" : "रद्द करें"}
                                 </Button>
                             </DialogFooter>
                         </>
