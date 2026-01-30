@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/db/drizzle";
-import { userProfile } from "@/db/schema";
+import { userProfile, user } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { randomUUID } from "crypto";
+import { nanoid } from "nanoid";
 
 /**
  * GET /api/user/profile
- * Get current user's profile
+ * Get user profile
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
         const session = await auth.api.getSession({
             headers: await headers(),
@@ -23,6 +23,7 @@ export async function GET() {
             );
         }
 
+        // Get user profile
         const [profile] = await db
             .select()
             .from(userProfile)
@@ -30,31 +31,32 @@ export async function GET() {
             .limit(1);
 
         if (!profile) {
-            // Return empty profile structure
+            // Return basic user info without profile
             return NextResponse.json({
-                userId: session.user.id,
-                phone: null,
-                dateOfBirth: null,
-                gender: null,
-                bloodGroup: null,
-                district: null,
-                address: null,
-                pincode: null,
-                emergencyContactName: null,
-                emergencyContactPhone: null,
-                emergencyContactRelation: null,
                 hasProfile: false,
+                user: {
+                    id: session.user.id,
+                    name: session.user.name,
+                    email: session.user.email,
+                    image: session.user.image,
+                },
             });
         }
 
         return NextResponse.json({
-            ...profile,
             hasProfile: true,
+            profile,
+            user: {
+                id: session.user.id,
+                name: session.user.name,
+                email: session.user.email,
+                image: session.user.image,
+            },
         });
     } catch (error) {
         console.error("[USER PROFILE GET ERROR]", error);
         return NextResponse.json(
-            { error: "Failed to get user profile" },
+            { error: "Failed to fetch profile" },
             { status: 500 }
         );
     }
@@ -78,7 +80,6 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-
         const {
             phone,
             alternatePhone,
@@ -96,37 +97,32 @@ export async function POST(request: NextRequest) {
         } = body;
 
         // Check if profile exists
-        const [existingProfile] = await db
+        const [existing] = await db
             .select()
             .from(userProfile)
             .where(eq(userProfile.userId, session.user.id))
             .limit(1);
 
-        if (existingProfile) {
+        if (existing) {
             // Update existing profile
             const [updated] = await db
                 .update(userProfile)
                 .set({
-                    phone: phone ?? existingProfile.phone,
-                    alternatePhone: alternatePhone ?? existingProfile.alternatePhone,
-                    dateOfBirth: dateOfBirth
-                        ? new Date(dateOfBirth)
-                        : existingProfile.dateOfBirth,
-                    gender: gender ?? existingProfile.gender,
-                    bloodGroup: bloodGroup ?? existingProfile.bloodGroup,
-                    latitude: latitude ?? existingProfile.latitude,
-                    longitude: longitude ?? existingProfile.longitude,
-                    district: district ?? existingProfile.district,
-                    address: address ?? existingProfile.address,
-                    pincode: pincode ?? existingProfile.pincode,
-                    emergencyContactName:
-                        emergencyContactName ?? existingProfile.emergencyContactName,
-                    emergencyContactPhone:
-                        emergencyContactPhone ?? existingProfile.emergencyContactPhone,
-                    emergencyContactRelation:
-                        emergencyContactRelation ?? existingProfile.emergencyContactRelation,
+                    phone,
+                    alternatePhone,
+                    dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+                    gender,
+                    bloodGroup,
+                    latitude,
+                    longitude,
+                    district,
+                    address,
+                    pincode,
+                    emergencyContactName,
+                    emergencyContactPhone,
+                    emergencyContactRelation,
                 })
-                .where(eq(userProfile.userId, session.user.id))
+                .where(eq(userProfile.id, existing.id))
                 .returning();
 
             return NextResponse.json({
@@ -139,37 +135,111 @@ export async function POST(request: NextRequest) {
             const [created] = await db
                 .insert(userProfile)
                 .values({
-                    id: randomUUID(),
+                    id: nanoid(),
                     userId: session.user.id,
-                    phone: phone || null,
-                    alternatePhone: alternatePhone || null,
+                    phone,
+                    alternatePhone,
                     dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
-                    gender: gender || null,
-                    bloodGroup: bloodGroup || null,
-                    latitude: latitude || null,
-                    longitude: longitude || null,
-                    district: district || null,
-                    address: address || null,
-                    pincode: pincode || null,
-                    emergencyContactName: emergencyContactName || null,
-                    emergencyContactPhone: emergencyContactPhone || null,
-                    emergencyContactRelation: emergencyContactRelation || null,
+                    gender,
+                    bloodGroup,
+                    latitude,
+                    longitude,
+                    district,
+                    address,
+                    pincode,
+                    emergencyContactName,
+                    emergencyContactPhone,
+                    emergencyContactRelation,
                 })
                 .returning();
 
-            return NextResponse.json(
-                {
-                    success: true,
-                    message: "Profile created successfully",
-                    profile: created,
-                },
-                { status: 201 }
-            );
+            return NextResponse.json({
+                success: true,
+                message: "Profile created successfully",
+                profile: created,
+            });
         }
     } catch (error) {
-        console.error("[USER PROFILE UPDATE ERROR]", error);
+        console.error("[USER PROFILE POST ERROR]", error);
         return NextResponse.json(
-            { error: "Failed to update user profile" },
+            { error: "Failed to save profile" },
+            { status: 500 }
+        );
+    }
+}
+
+/**
+ * PATCH /api/user/profile
+ * Partial profile update
+ */
+export async function PATCH(request: NextRequest) {
+    try {
+        const session = await auth.api.getSession({
+            headers: await headers(),
+        });
+
+        if (!session?.user) {
+            return NextResponse.json(
+                { error: "Authentication required" },
+                { status: 401 }
+            );
+        }
+
+        const body = await request.json();
+
+        // Get existing profile
+        const [existing] = await db
+            .select()
+            .from(userProfile)
+            .where(eq(userProfile.userId, session.user.id))
+            .limit(1);
+
+        if (!existing) {
+            return NextResponse.json(
+                { error: "Profile not found. Use POST to create one." },
+                { status: 404 }
+            );
+        }
+
+        const updates: Record<string, unknown> = {};
+
+        // Only update provided fields
+        if (body.phone !== undefined) updates.phone = body.phone;
+        if (body.alternatePhone !== undefined) updates.alternatePhone = body.alternatePhone;
+        if (body.dateOfBirth !== undefined) updates.dateOfBirth = body.dateOfBirth ? new Date(body.dateOfBirth) : null;
+        if (body.gender !== undefined) updates.gender = body.gender;
+        if (body.bloodGroup !== undefined) updates.bloodGroup = body.bloodGroup;
+        if (body.latitude !== undefined) updates.latitude = body.latitude;
+        if (body.longitude !== undefined) updates.longitude = body.longitude;
+        if (body.district !== undefined) updates.district = body.district;
+        if (body.address !== undefined) updates.address = body.address;
+        if (body.pincode !== undefined) updates.pincode = body.pincode;
+        if (body.emergencyContactName !== undefined) updates.emergencyContactName = body.emergencyContactName;
+        if (body.emergencyContactPhone !== undefined) updates.emergencyContactPhone = body.emergencyContactPhone;
+        if (body.emergencyContactRelation !== undefined) updates.emergencyContactRelation = body.emergencyContactRelation;
+
+        if (Object.keys(updates).length === 0) {
+            return NextResponse.json(
+                { error: "No updates provided" },
+                { status: 400 }
+            );
+        }
+
+        const [updated] = await db
+            .update(userProfile)
+            .set(updates)
+            .where(eq(userProfile.id, existing.id))
+            .returning();
+
+        return NextResponse.json({
+            success: true,
+            message: "Profile updated successfully",
+            profile: updated,
+        });
+    } catch (error) {
+        console.error("[USER PROFILE PATCH ERROR]", error);
+        return NextResponse.json(
+            { error: "Failed to update profile" },
             { status: 500 }
         );
     }

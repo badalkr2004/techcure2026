@@ -21,6 +21,10 @@ import {
     Bell,
     Settings,
     ExternalLink,
+    Waves,
+    Flame,
+    Wind,
+    ShieldAlert,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
@@ -58,6 +62,26 @@ interface Issue {
     } | null;
 }
 
+interface DisasterActivation {
+    id: string;
+    status: string;
+    assignedArea: string | null;
+    responsibilities: string | null;
+    activatedAt: string;
+    disaster: {
+        id: string;
+        title: string;
+        disasterType: string;
+        severity: string;
+        status: string;
+        affectedDistricts: string[];
+    };
+    team: {
+        id: string;
+        name: string;
+    };
+}
+
 // Helper to get location display text
 const getLocationText = (issue: Issue): string => {
     if (issue.address) return issue.address;
@@ -84,12 +108,22 @@ const severityColors: Record<string, string> = {
     critical: "bg-red-500",
 };
 
+const disasterIcons: Record<string, React.ReactNode> = {
+    flood: <Waves className="w-5 h-5" />,
+    earthquake: <AlertTriangle className="w-5 h-5" />,
+    cyclone: <Wind className="w-5 h-5" />,
+    fire: <Flame className="w-5 h-5" />,
+    pandemic: <ShieldAlert className="w-5 h-5" />,
+    other: <AlertTriangle className="w-5 h-5" />,
+};
+
 export default function VolunteerDashboardPage() {
     const router = useRouter();
     const { data: session, isPending: sessionLoading } = authClient.useSession();
 
     const [profile, setProfile] = useState<VolunteerProfile | null>(null);
     const [issues, setIssues] = useState<Issue[]>([]);
+    const [activations, setActivations] = useState<DisasterActivation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [updatingAvailability, setUpdatingAvailability] = useState(false);
@@ -121,6 +155,13 @@ export default function VolunteerDashboardPage() {
             if (issuesRes.ok) {
                 const issuesData = await issuesRes.json();
                 setIssues(issuesData.issues || []);
+            }
+
+            // Fetch disaster activations
+            const activationsRes = await fetch("/api/volunteer/activations");
+            if (activationsRes.ok) {
+                const activationsData = await activationsRes.json();
+                setActivations(activationsData.activations || []);
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : "Something went wrong");
@@ -310,6 +351,75 @@ export default function VolunteerDashboardPage() {
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Disaster Activations */}
+                {activations.length > 0 && (
+                    <Card className="mb-8 border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10">
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle className="flex items-center gap-2 text-red-600">
+                                <ShieldAlert className="w-5 h-5" />
+                                Disaster Team Activations
+                                <Badge className="bg-red-500">{activations.length}</Badge>
+                            </CardTitle>
+                            <Button variant="outline" size="sm" asChild>
+                                <Link href="/disasters">View All Disasters</Link>
+                            </Button>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                {activations.map((activation) => (
+                                    <div
+                                        key={activation.id}
+                                        className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded-lg"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600">
+                                                {disasterIcons[activation.disaster.disasterType] || disasterIcons.other}
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-medium">
+                                                        {activation.disaster.title}
+                                                    </span>
+                                                    <Badge variant="outline" className="text-xs capitalize">
+                                                        {activation.disaster.severity}
+                                                    </Badge>
+                                                </div>
+                                                <p className="text-sm text-gray-500 mt-1">
+                                                    <span className="font-medium text-blue-600">{activation.team.name}</span>
+                                                    {activation.assignedArea && (
+                                                        <span> • {activation.assignedArea}</span>
+                                                    )}
+                                                </p>
+                                                {activation.responsibilities && (
+                                                    <p className="text-xs text-gray-400 mt-1">
+                                                        {activation.responsibilities}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Badge className={
+                                                activation.status === "deployed"
+                                                    ? "bg-green-500"
+                                                    : activation.status === "activated"
+                                                        ? "bg-blue-500"
+                                                        : "bg-gray-500"
+                                            }>
+                                                {activation.status}
+                                            </Badge>
+                                            <Button size="sm" asChild>
+                                                <Link href={`/disasters/${activation.disaster.id}`}>
+                                                    Details
+                                                </Link>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Active Alerts */}
                 <Card className="mb-8">
