@@ -1,0 +1,10 @@
+export { authRouter } from "./auth";
+export { panicRouter } from "./panic";
+export { issuesRouter } from "./issues";
+export { disastersRouter } from "./disasters";
+export { campaignsRouter } from "./campaigns";
+export { donationsRouter } from "./donations";
+export { teamsRouter } from "./teams";
+export { volunteerRouter } from "./volunteer";
+export { userRouter } from "./user";
+export { adminRouter } from "./admin";
