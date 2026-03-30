@@ -216,6 +216,9 @@ importers:
       express:
         specifier: ^4.19.2
         version: 4.22.1
+      nanoid:
+        specifier: ^5.0.7
+        version: 5.1.6
       resend:
         specifier: ^3.4.0
         version: 3.5.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)

@@ -1,10 +1,20 @@
-export { authRouter } from "./auth";
-export { panicRouter } from "./panic";
-export { issuesRouter } from "./issues";
-export { disastersRouter } from "./disasters";
-export { campaignsRouter } from "./campaigns";
-export { donationsRouter } from "./donations";
-export { teamsRouter } from "./teams";
-export { volunteerRouter } from "./volunteer";
-export { userRouter } from "./user";
-export { adminRouter } from "./admin";
+import { Router } from "express";
+import volunteerRouter from "./volunteer";
+import teamsRouter from "./teams";
+import panicRouter from "./panic";
+import issuesRouter from "./issues";
+import disastersRouter from "./disasters";
+import campaignsRouter from "./campaigns";
+import donationsRouter from "./donations";
+
+const router = Router();
+
+router.use("/volunteer", volunteerRouter);
+router.use("/teams", teamsRouter);
+router.use("/panic", panicRouter);
+router.use("/issues", issuesRouter);
+router.use("/disasters", disastersRouter);
+router.use("/campaigns", campaignsRouter);
+router.use("/donations", donationsRouter);
+
+export default router;

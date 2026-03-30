@@ -1,5 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import { auth } from "../lib/auth";
+import { db } from "../db/drizzle";
+import { user as userTable } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 export const requireAuth = async (
   req: Request,
@@ -15,7 +18,17 @@ export const requireAuth = async (
       return res.status(401).json({ error: "Authentication required" });
     }
 
-    req.user = session.user;
+    const [dbUser] = await db
+      .select()
+      .from(userTable)
+      .where(eq(userTable.id, session.user.id))
+      .limit(1);
+
+    if (!dbUser) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    req.user = dbUser;
     req.session = session.session;
     return next();
   } catch (error) {
