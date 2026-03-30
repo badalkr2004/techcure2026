@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { auth } from "../lib/auth";
+import { logger } from "../lib/logger";
 import { db } from "../db/drizzle";
 import { user as userTable } from "../db/schema";
 import { eq } from "drizzle-orm";
@@ -32,7 +33,7 @@ export const requireAuth = async (
     req.session = session.session;
     return next();
   } catch (error) {
-    console.error("Auth error", error);
+    logger.error("Session fetch failed", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };

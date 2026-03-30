@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+export const RoleEnum = z.enum(["user", "volunteer", "admin"]);
+export const VolunteerRankEnum = z.enum([
+  "beginner",
+  "trained",
+  "advanced",
+  "expert",
+  "leader",
+]);
+
 export const CreateVolunteerProfileSchema = z.object({
   displayName: z.string().min(1),
   phone: z.string().min(1),
@@ -131,4 +140,26 @@ export const CreateDonationSchema = z.object({
   donorPhone: z.string().optional(),
   message: z.string().optional(),
   isAnonymous: z.boolean().optional(),
+});
+
+export const UpdateUserRoleSchema = z.object({
+  role: RoleEnum,
+});
+
+export const SendNotificationSchema = z.object({
+  title: z.string().min(3).max(200),
+  message: z.string().min(5).max(1000),
+  targetRole: z.enum(["all", "user", "volunteer", "admin"]).default("all"),
+  userId: z.string().optional(),
+});
+
+export const RejectCampaignSchema = z.object({
+  reason: z
+    .string()
+    .min(10, "Rejection reason must be at least 10 characters")
+    .max(500, "Reason too long"),
+});
+
+export const UpdateVolunteerRankSchema = z.object({
+  rank: VolunteerRankEnum,
 });

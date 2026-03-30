@@ -10,6 +10,15 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
+  trustedOrigins: (process.env.ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+    .concat([
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:8081",
+    ]),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
