@@ -9,6 +9,11 @@ export const auth = betterAuth({
     provider: "pg", // or "mysql", "sqlite"
     schema,
   }),
+  trustedOrigins: [
+    "https://biharsahayata.bitbrains.site",
+    "https://techcure.bitbrains.site",
+    "http://localhost:3000",
+  ],
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
